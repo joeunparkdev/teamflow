@@ -47,25 +47,16 @@ export class User {
 
   /**
    * 닉네임
-   * @example "고객"
+   * @example "홍길동"
    */
-  @IsNotEmpty({ message: '닉네임을 입력해 주세요.' })
+  @IsNotEmpty({ message: '이름을 입력해 주세요.' })
   @IsString()
   @Column()
-  nickname: string;
-
-  @IsNumber()
-  @Column({ unsigned: true })
-  points: number;
-
-  @IsEnum(UserRole)
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.Customer })
-  role: UserRole;
+  name: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
 }

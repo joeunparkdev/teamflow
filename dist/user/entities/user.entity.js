@@ -13,10 +13,9 @@ exports.User = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
-const user_role_type_1 = require("../types/user-role.type");
 let User = class User {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String, description: "\uC774\uBA54\uC77C", example: "example@example.com" }, password: { required: true, type: () => String, description: "\uBE44\uBC00\uBC88\uD638", example: "Ex@mp1e!!" }, nickname: { required: true, type: () => String, description: "\uB2C9\uB124\uC784", example: "\uACE0\uAC1D" }, points: { required: true, type: () => Number }, role: { required: true, enum: require("../types/user-role.type").UserRole }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date } };
+        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String, description: "\uC774\uBA54\uC77C", example: "example@example.com" }, password: { required: true, type: () => String, description: "\uBE44\uBC00\uBC88\uD638", example: "Ex@mp1e!!" }, name: { required: true, type: () => String, description: "\uB2C9\uB124\uC784", example: "\uD64D\uAE38\uB3D9" }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date } };
     }
 };
 exports.User = User;
@@ -39,21 +38,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: '닉네임을 입력해 주세요.' }),
+    (0, class_validator_1.IsNotEmpty)({ message: '이름을 입력해 주세요.' }),
     (0, class_validator_1.IsString)(),
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], User.prototype, "nickname", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, typeorm_1.Column)({ unsigned: true }),
-    __metadata("design:type", Number)
-], User.prototype, "points", void 0);
-__decorate([
-    (0, class_validator_1.IsEnum)(user_role_type_1.UserRole),
-    (0, typeorm_1.Column)({ type: 'enum', enum: user_role_type_1.UserRole, default: user_role_type_1.UserRole.Customer }),
-    __metadata("design:type", String)
-], User.prototype, "role", void 0);
+], User.prototype, "name", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

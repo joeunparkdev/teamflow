@@ -9,7 +9,7 @@ export declare class AuthService {
     private readonly jwtService;
     private readonly userRepository;
     constructor(configService: ConfigService, jwtService: JwtService, userRepository: Repository<User>);
-    signUp({ email, password, passwordConfirm, nickname }: SignUpDto): Promise<{
+    signUp({ email, password, passwordConfirm, name }: SignUpDto): Promise<{
         accessToken: string;
     }>;
     signIn(userId: number): {

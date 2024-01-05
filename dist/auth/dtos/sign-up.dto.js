@@ -17,7 +17,7 @@ const user_entity_1 = require("../../user/entities/user.entity");
 class SignUpDto extends (0, swagger_1.PickType)(user_entity_1.User, [
     'email',
     'password',
-    'nickname',
+    'name',
 ]) {
     static _OPENAPI_METADATA_FACTORY() {
         return { passwordConfirm: { required: true, type: () => String, description: "\uBE44\uBC00\uBC88\uD638 \uD655\uC778", example: "Ex@mp1e!!" } };

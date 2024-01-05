@@ -34,10 +34,6 @@ let RolesGuard = class RolesGuard extends jwt_auth_guard_1.JwtAuthGuard {
         const req = context.switchToHttp().getRequest();
         const userId = req.user.id;
         const user = await this.userRepository.findOneBy({ id: userId });
-        const hasPermission = requiredRoles.some((role) => role === user.role);
-        if (!hasPermission) {
-            throw new common_1.ForbiddenException('권한이 없습니다.');
-        }
         return hasPermission;
     }
 };

@@ -5,7 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 export class SignUpDto extends PickType(User, [
   'email',
   'password',
-  'nickname',
+  'name',
 ]) {
   /**
    * 비밀번호 확인

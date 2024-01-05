@@ -29,7 +29,7 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.userRepository = userRepository;
     }
-    async signUp({ email, password, passwordConfirm, nickname }) {
+    async signUp({ email, password, passwordConfirm, name }) {
         const isPasswordMatched = password === passwordConfirm;
         if (!isPasswordMatched) {
             throw new common_1.BadRequestException('비밀번호와 비밀번호 확인이 서로 일치하지 않습니다.');
@@ -43,7 +43,7 @@ let AuthService = class AuthService {
         const user = await this.userRepository.save({
             email,
             password: hashedPassword,
-            nickname,
+            name,
         });
         return this.signIn(user.id);
     }
