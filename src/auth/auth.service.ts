@@ -15,7 +15,7 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async signUp({ email, password, passwordConfirm, nickname }: SignUpDto) {
+  async signUp({ email, password, passwordConfirm,  name }: SignUpDto) {
     const isPasswordMatched = password === passwordConfirm;
     if (!isPasswordMatched) {
       throw new BadRequestException(
@@ -34,7 +34,7 @@ export class AuthService {
     const user = await this.userRepository.save({
       email,
       password: hashedPassword,
-      nickname,
+      name,
     });
 
     return this.signIn(user.id);
