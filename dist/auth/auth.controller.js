@@ -40,6 +40,15 @@ let AuthController = class AuthController {
             data,
         };
     }
+    signOut(req) {
+        console.log(req);
+        const data = this.authService.signOut(req.user.id);
+        return {
+            statusCode: common_1.HttpStatus.OK,
+            message: '로그아웃에 성공했습니다.',
+            data,
+        };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -63,6 +72,17 @@ __decorate([
     __metadata("design:paramtypes", [Object, sign_in_dto_1.SignInDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "signIn", null);
+__decorate([
+    openapi.ApiOperation({ summary: "\uB85C\uADF8\uC544\uC6C3" }),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('local')),
+    (0, common_1.Post)('/sign-out'),
+    openapi.ApiResponse({ status: common_1.HttpStatus.OK }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "signOut", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('인증'),
     (0, common_1.Controller)('auth'),

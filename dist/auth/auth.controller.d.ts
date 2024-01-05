@@ -19,4 +19,9 @@ export declare class AuthController {
             accessToken: string;
         };
     };
+    signOut(req: any): {
+        statusCode: HttpStatus;
+        message: string;
+        data: void;
+    };
 }

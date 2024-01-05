@@ -15,6 +15,8 @@ export declare class AuthService {
     signIn(userId: number): {
         accessToken: string;
     };
+    private readonly jwtSecretKey;
+    signOut(req: any): void;
     validateUser({ email, password }: SignInDto): Promise<{
         id: number;
     }>;

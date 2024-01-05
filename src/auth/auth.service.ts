@@ -7,6 +7,13 @@ import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { SignInDto } from './dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
+import { Request } from 'express';
+
+interface CustomRequest extends Request {
+  session: any;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,7 +22,7 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async signUp({ email, password, passwordConfirm,  name }: SignUpDto) {
+  async signUp({ email, password, passwordConfirm, name }: SignUpDto) {
     const isPasswordMatched = password === passwordConfirm;
     if (!isPasswordMatched) {
       throw new BadRequestException(
@@ -45,6 +52,32 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
 
     return { accessToken };
+  }
+
+  private readonly jwtSecretKey = process.env.JWT_SECRET || 'default_secret';
+
+  signOut(req) {
+    console.log(req);
+    // 세션 무효화
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('세션 무효화 오류:', err);
+      }
+    });
+
+    // JWT 토큰 제거
+    const token = req.headers.authorization?.split(' ')[1];
+    console.log(token);
+    if (token) {
+      try {
+        jwt.verify(token, this.jwtSecretKey, { ignoreExpiration: true });
+        console.log(token, this.jwtSecretKey);
+        // 토큰이 검증되면 무효화됨
+        console.log('JWT 토큰이 무효화되었습니다.');
+      } catch (error) {
+        console.error('JWT 토큰 검증 오류:', error);
+      }
+    }
   }
 
   async validateUser({ email, password }: SignInDto) {

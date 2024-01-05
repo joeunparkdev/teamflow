@@ -51,4 +51,24 @@ export class AuthController {
       data,
     };
   }
+
+  /**
+   * 로그아웃
+   * @param req
+   * @param signOutDto
+   * @returns
+   */
+   @HttpCode(HttpStatus.OK)
+   @UseGuards(AuthGuard('local'))
+   @Post('/sign-out')
+   signOut(@Request() req) {
+     console.log(req);
+     const data = this.authService.signOut(req.user.id);
+ 
+     return {
+       statusCode: HttpStatus.OK,
+       message: '로그아웃에 성공했습니다.',
+       data,
+     };
+   }
 }
