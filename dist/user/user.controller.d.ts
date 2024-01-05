@@ -8,4 +8,9 @@ export declare class UserController {
         message: string;
         data: import("./entities/user.entity").User;
     }>;
+    deleteMe(req: any): Promise<{
+        statusCode: HttpStatus;
+        message: string;
+        data: import("./entities/user.entity").User;
+    }>;
 }

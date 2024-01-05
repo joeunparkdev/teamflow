@@ -4,4 +4,5 @@ export declare class UserService {
     private readonly userRepository;
     constructor(userRepository: Repository<User>);
     findOneById(id: number): Promise<User>;
+    deleteId(id: number): Promise<User>;
 }

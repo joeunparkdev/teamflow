@@ -18,4 +18,21 @@ export class UserService {
 
     return user;
   }
+
+  async deleteId(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 사용자 삭제
+    await this.userRepository.remove(user);
+
+    // 토큰삭제
+    
+
+    return user;
+  }
+
 }

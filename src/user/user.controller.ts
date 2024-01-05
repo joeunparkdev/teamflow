@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Request,
@@ -33,4 +34,24 @@ export class UserController {
       data,
     };
   }
+
+  /**
+   * 회원 탈퇴
+   * @param req
+   * @returns
+   */
+   @ApiBearerAuth()
+   @UseGuards(JwtAuthGuard)
+   @Delete('/me')
+   async deleteMe(@Request() req) {
+     const userId = req.user.id;
+   
+     const data = await this.userService.deleteId(userId);
+   
+     return {
+       statusCode: HttpStatus.OK,
+       message: '회원탈퇴에 성공했습니다.',
+       data,
+     };
+   }
 }

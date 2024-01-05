@@ -28,6 +28,14 @@ let UserService = class UserService {
         }
         return user;
     }
+    async deleteId(id) {
+        const user = await this.userRepository.findOneBy({ id });
+        if (!user) {
+            throw new common_1.NotFoundException('사용자를 찾을 수 없습니다.');
+        }
+        await this.userRepository.remove(user);
+        return user;
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

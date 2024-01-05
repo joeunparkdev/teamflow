@@ -31,6 +31,15 @@ let UserController = class UserController {
             data,
         };
     }
+    async deleteMe(req) {
+        const userId = req.user.id;
+        const data = await this.userService.deleteId(userId);
+        return {
+            statusCode: common_1.HttpStatus.OK,
+            message: '회원탈퇴에 성공했습니다.',
+            data,
+        };
+    }
 };
 exports.UserController = UserController;
 __decorate([
@@ -44,6 +53,17 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findMe", null);
+__decorate([
+    openapi.ApiOperation({ summary: "\uD68C\uC6D0 \uD0C8\uD1F4" }),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Delete)('/me'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "deleteMe", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)('사용자'),
     (0, common_1.Controller)('users'),
