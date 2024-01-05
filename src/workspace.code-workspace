@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "teamflow",
+		"path": "../../../teamflow"
+	},
+	{
+		"name": "src",
+		"path": "."
+	}
+],
+  "settings": {}
+}
