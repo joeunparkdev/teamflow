@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -53,6 +54,10 @@ export class User {
   @IsString()
   @Column()
   name: string;
+
+  @Column({ nullable: true })
+  @Exclude()
+  currentHashedRefreshToken?: string;
 
   @CreateDateColumn()
   createdAt: Date;

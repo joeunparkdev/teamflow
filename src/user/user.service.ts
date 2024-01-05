@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { compare } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -35,4 +36,22 @@ export class UserService {
     return user;
   }
 
+  async getUserIfRefreshTokenMatches(refreshToken: string, id: number) {
+    const user = await this.findOneById(id);
+
+    const isRefreshTokenMatching = await compare(
+      refreshToken,
+      user.currentHashedRefreshToken,
+    );
+
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
+  async removeRefreshToken(id: number) {
+    return this.userRepository.update(id, {
+      currentHashedRefreshToken: null,
+    });
+  }
 }
