@@ -1,14 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
-import * as jwt from 'jsonwebtoken';
 import { Request } from 'express';
+import { UserService } from 'src/user/user.service';
 
 interface CustomRequest extends Request {
   session: any;
@@ -19,6 +23,7 @@ export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
@@ -30,9 +35,9 @@ export class AuthService {
       );
     }
 
-    const existedUser = await this.userRepository.findOneBy({ email });
+    const existedUser = await this.userRepository.findOne({ where: { email } });
     if (existedUser) {
-      throw new BadRequestException('이미 가입 된 이메일 입니다.');
+      throw new BadRequestException('이미 가입된 이메일입니다.');
     }
 
     const hashRounds = this.configService.get<number>('PASSWORD_HASH_ROUNDS');
@@ -47,36 +52,34 @@ export class AuthService {
     return this.signIn(user.id);
   }
 
-  signIn(userId: number) {
-    const payload = { id: userId };
+  signIn(id: number) {
+    const payload = { id };
     const accessToken = this.jwtService.sign(payload);
-
-    return { accessToken };
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    this.userRepository.update(id, { refreshToken });
+    return { accessToken, refreshToken };
   }
 
-  private readonly jwtSecretKey = process.env.JWT_SECRET || 'default_secret';
+  async refreshToken(refreshToken: string) {
+    try {
+      console.log('Received Refresh Token:', refreshToken);
 
-  signOut(req) {
-    console.log(req);
-    // 세션 무효화
-    req.session.destroy((err) => {
-      if (err) {
-        console.error('세션 무효화 오류:', err);
-      }
-    });
+      // "Bearer " 제거 후 토큰 추출
+      const token = refreshToken.replace('Bearer ', '');
+      console.log('Extracted Token:', token);
 
-    // JWT 토큰 제거
-    const token = req.headers.authorization?.split(' ')[1];
-    console.log(token);
-    if (token) {
-      try {
-        jwt.verify(token, this.jwtSecretKey, { ignoreExpiration: true });
-        console.log(token, this.jwtSecretKey);
-        // 토큰이 검증되면 무효화됨
-        console.log('JWT 토큰이 무효화되었습니다.');
-      } catch (error) {
-        console.error('JWT 토큰 검증 오류:', error);
-      }
+      // 토큰 검증
+      const decoded = this.jwtService.verify(token, {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+      });
+      console.log('Decoded Refresh Token:', decoded);
+
+      // 사용자 ID를 가져오기
+      const userId = decoded.id; // 'id' 필드를 사용
+      console.log('User ID from Refresh Token:', userId);
+    } catch (err) {
+      console.error('토큰 검증 및 갱신 중 오류 발생:', err);
+      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
     }
   }
 
@@ -97,5 +100,27 @@ export class AuthService {
     return { id: user.id };
   }
 
+  async validateRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, refreshToken },
+    });
+    console.log(user);
+    return user || null;
+  }
 
+  async validate(payload: any) {
+    console.log(payload);
+    const user = await this.userService.validateRefreshToken(
+      payload.sub,
+      payload.refreshToken,
+    );
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return user;
+  }
 }

@@ -31,27 +31,18 @@ export class UserService {
     await this.userRepository.remove(user);
 
     // 토큰삭제
-    
 
     return user;
   }
 
-  async getUserIfRefreshTokenMatches(refreshToken: string, id: number) {
-    const user = await this.findOneById(id);
-
-    const isRefreshTokenMatching = await compare(
-      refreshToken,
-      user.currentHashedRefreshToken,
-    );
-
-    if (isRefreshTokenMatching) {
-      return user;
-    }
-  }
-
-  async removeRefreshToken(id: number) {
-    return this.userRepository.update(id, {
-      currentHashedRefreshToken: null,
+  async validateRefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, refreshToken },
     });
+    console.log(user);
+    return user || null;
   }
 }

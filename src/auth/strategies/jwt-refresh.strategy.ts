@@ -1,35 +1,48 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt } from "passport-jwt";
-import { Strategy } from "passport-local";
-import { UserService } from "src/user/user.service";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
-    Strategy,
-    'jwt-refresh-token',
+  Strategy,
+  'jwt-refresh-token',
 ) {
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly userService: UserService,
-    ){
-        super({
-            jwtFromRequest : ExtractJwt.fromExtractors([
-                (request)=> {
-                    return request?.cookies?.Refresh;
-                },
-            ]),
-            secretOrKey: configService.get('JWT_REFRESH_TOKEN_SECRET'),
-            passReqToCallback: true,
-        })
-    }
-    
-    async validate(req, payload: any) {
-        const refreshToken = req.cookies?.Refresh;
-        return this.userService.getUserIfRefreshTokenMatches(
-          refreshToken,
-          payload.id,
-        );
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly authService: AuthService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_SECRET'),
+    });
+  }
+
+  async validate(payload: any) {
+    console.log('JwtRefreshStrategy validate:', payload);
+    try {
+      const refreshToken = payload?.refreshToken || payload?.rfsToken;
+      console.log(refreshToken);
+      if (!refreshToken) {
+        console.error('Refresh token is missing in payload:', payload);
+        throw new UnauthorizedException('토큰이 유효하지 않습니다.');
       }
+
+      const user = await this.authService.validateRefreshToken(
+        payload.sub,
+        refreshToken,
+      );
+      if (!user) {
+        console.error('Refresh token validation failed:', payload);
+        throw new UnauthorizedException();
+      }
+
+      return user;
+    } catch (error) {
+      console.error('Error in validate:', error);
+      throw new UnauthorizedException();
+    }
+  }
 }

@@ -55,9 +55,8 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
-  @Exclude()
-  currentHashedRefreshToken?: string;
+  @Column({ nullable: true }) 
+  refreshToken: string;
 
   @CreateDateColumn()
   createdAt: Date;

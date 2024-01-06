@@ -3,8 +3,11 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Headers,
   Post,
+  Req,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -12,6 +15,8 @@ import { SignUpDto } from './dtos/sign-up.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { SignInDto } from './dtos/sign-in.dto';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('인증')
 @Controller('auth')
@@ -53,23 +58,18 @@ export class AuthController {
   }
 
   /**
-   * 로그아웃
-   * @param req
-   * @param signOutDto
-   * @returns
+   * 엑세스 토큰 재발급 API
+   * @param refreshToken
+   * @returns {Object} statusCode, message, accessToken
    */
-   @HttpCode(HttpStatus.OK)
-   @UseGuards(AuthGuard('local'))
-   @Post('/sign-out')
-   signOut(@Request() req) {
-     console.log(req);
-     const data = this.authService.signOut(req.user.id);
- 
-     return {
-       statusCode: HttpStatus.OK,
-       message: '로그아웃에 성공했습니다.',
-       data,
-     };
-   }
-   
+  @Post('refresh')
+  async refresh(@Headers('refresh-token') refreshToken: string) {
+    const accessToken = await this.authService.refreshToken(refreshToken);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '토큰 재발급에 성공했습니다.',
+      accessToken,
+    };
+  }
 }
