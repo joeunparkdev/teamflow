@@ -7,9 +7,6 @@ import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CardsModule } from './cards/cards.module';
-import { CommentsController } from './comments/comments.controller';
-import { CommentsService } from './comments/comments.service';
-import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -21,8 +18,7 @@ import { CommentsModule } from './comments/comments.module';
     AuthModule,
     UserModule,
     CardsModule,
-    CommentsModule,
   ],
-  controllers: [AppController]
+  controllers: [AppController],
 })
 export class AppModule {}
