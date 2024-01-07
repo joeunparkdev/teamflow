@@ -6,7 +6,9 @@ import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { CardsModule } from './cards/cards.module';
+import { CommentsController } from './comments/comments.controller';
+import { CommentsService } from './comments/comments.service';
+
 
 @Module({
   imports: [
@@ -17,8 +19,8 @@ import { CardsModule } from './cards/cards.module';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     AuthModule,
     UserModule,
-    CardsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CommentsController],
+  providers: [CommentsService],
 })
 export class AppModule {}
