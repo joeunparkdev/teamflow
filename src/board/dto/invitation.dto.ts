@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class InvitataionDto {
-  @IsString()
-  @IsNotEmpty({ message: '멤버 이름을 입력해주세요.' })
-  member: string;
+  @IsEmail()
+  @IsNotEmpty({ message: '초대할 사람의 이메일을 작성해주세요.' })
+  email: string;
 }

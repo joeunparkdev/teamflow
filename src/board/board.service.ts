@@ -6,6 +6,7 @@ import { Board } from './entities/board.entity';
 import _ from 'lodash';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitataionDto } from './dto/invitation.dto';
+import nodemailer from 'nodemailer';
 
 @Injectable()
 export class BoardService {
@@ -39,8 +40,10 @@ export class BoardService {
     return updatedBoard;
   }
 
-  async findBoardById(id: number) {
-    const board = await this.boardRepository.findOne({ where: { id } });
+  async findBoardById(boardId: number) {
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId },
+    });
 
     if (_.isNil(board)) {
       throw new NotFoundException('존재하지 않는 보드입니다.');
@@ -56,11 +59,36 @@ export class BoardService {
     return deletedBoard;
   }
 
-  async inviteMember(member: InvitataionDto) {
-    // 멤버 초대하는 로직
-    // 1. user 테이블에 boardId 넣어서 관리
-    // 2. board 테이블 에서 새로운 컬럼을 만들어 userId를 배열로 저장해 관리
-    // 3. boardId와 userId가 연관되어 있는 새로운 테이블 만들어서 관리
-    // 4. 중요한 정보가 아니기 때문에 db저장보다는 redis로 관리
+  // 나중에 중요 내용들 .env에 포함시키기
+  async inviteMember(memberEmail: InvitataionDto) {
+    const email = {
+      host: 'sandbox.smtp.mailtrap.io',
+      port: 2525,
+      secure: false,
+      auth: {
+        user: 'd84940eb5ced50',
+        pass: 'b9e7444fe50a24',
+      },
+    };
+
+    const content = {
+      from: 'dbscks95@gmail.com',
+      to: `${memberEmail}`,
+      subject: '이메일 테스트 제목입니다.',
+      text: '이메일 테스트 제목에 따른 내용입니다.',
+    };
+
+    this.sendEmail(email, content);
+  }
+  // error문제에서 try catch로 바꾸기
+  async sendEmail(email: object, data: object) {
+    nodemailer.createTransport(email).sendMail(data, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(info);
+        return info.response;
+      }
+    });
   }
 }

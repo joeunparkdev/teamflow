@@ -4,15 +4,13 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
-  Put,
   Post,
+  Put,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitataionDto } from './dto/invitation.dto';
-
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
@@ -65,11 +63,17 @@ export class BoardController {
   @Get(':boardId')
   async getBoard(@Param('boardId') boardId: number) {
     const board = await this.boardService.findBoardById(boardId);
+
+    return {
+      statusCode: 200,
+      message: '보드가 정상적으로 조회되었습니다.',
+      data: board,
+    };
   }
 
   @Post()
-  async inviteMember(@Body() member: InvitataionDto) {
-    const invitedMember = await this.boardService.inviteMember(member);
+  async inviteMember(@Body() email: InvitataionDto) {
+    const invitedMember = await this.boardService.inviteMember(email);
 
     return {
       statusCode: 201,
