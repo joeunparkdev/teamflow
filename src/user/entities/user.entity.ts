@@ -101,9 +101,6 @@ export class User {
   @Column({ nullable: true })
   refreshToken: string;
 
-  @Column()
-  verificationCode: string;
-
   @Column({ nullable: true })
   kakaoId: string;
 

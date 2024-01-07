@@ -108,6 +108,7 @@ export class EmailService {
     // 인증번호가 일치하지 않거나, 유효 기간이 지났을 경우
     if (savedCode) {
       savedCode.attempts += 1;
+      this.emailVerificationRepository.save(savedCode);
 
       // 시도 횟수가 허용 범위를 초과하면 회원을 휴면 상태로 전환
       if (savedCode.attempts >= this.MAX_ATTEMPTS) {

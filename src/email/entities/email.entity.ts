@@ -11,7 +11,7 @@ export class EmailVerification {
   @Column()
   code: string;
 
-  @Column()
+  @Column({default:1})
   attempts: number;
 
   @Column()
