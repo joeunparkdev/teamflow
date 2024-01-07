@@ -15,6 +15,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../types/user-role.type';
+import { Comments } from '../../comments/entities/comments.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +26,10 @@ export class User {
    * 이메일
    * @example "example@example.com"
    */
+
+  @OneToMany(() => Comments, (comment) => comment.user, { cascade: true })
+  comment: Comments;
+
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })

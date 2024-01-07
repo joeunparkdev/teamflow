@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CommentsController } from './comments/comments.controller';
 import { CommentsService } from './comments/comments.service';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CommentsService } from './comments/comments.service';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     AuthModule,
     UserModule,
+    CommentsModule,
   ],
   controllers: [AppController, CommentsController],
   providers: [CommentsService],
