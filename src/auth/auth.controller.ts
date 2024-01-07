@@ -88,7 +88,7 @@ export class AuthController {
   }
 
   /**
-   * 이메일 인증 (비밀번호 잃어버렸을때 이용)
+   * 이메일 인증 (비밀번호 분실시)
    * @param emailVerifyDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
    * @returns 인증 번호를 이메일로 전송한 결과 메시지
    */
