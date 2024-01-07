@@ -2,6 +2,7 @@ import { Exclude } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
@@ -18,6 +19,7 @@ import {
 } from 'typeorm';
 import { Comments } from '../../cards/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
+import { UserRole } from '../types/user-role.type';
 
 @Entity('users')
 export class User {

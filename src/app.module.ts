@@ -6,8 +6,6 @@ import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { CommentsController } from './comments/comments.controller';
-import { CommentsService } from './comments/comments.service';
 
 
 @Module({
@@ -20,7 +18,6 @@ import { CommentsService } from './comments/comments.service';
     AuthModule,
     UserModule,
   ],
-  controllers: [AppController, CommentsController],
-  providers: [CommentsService],
+
 })
 export class AppModule {}
