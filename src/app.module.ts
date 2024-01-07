@@ -6,6 +6,7 @@ import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { CardsModule } from './cards/cards.module';
 import { CommentsController } from './comments/comments.controller';
 import { CommentsService } from './comments/comments.service';
 import { CommentsModule } from './comments/comments.module';
@@ -19,9 +20,9 @@ import { CommentsModule } from './comments/comments.module';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     AuthModule,
     UserModule,
+    CardsModule,
     CommentsModule,
   ],
-  controllers: [AppController, CommentsController],
-  providers: [CommentsService],
+  controllers: [AppController]
 })
 export class AppModule {}
