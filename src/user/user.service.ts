@@ -20,6 +20,16 @@ export class UserService {
     return user;
   }
 
+  async findOneByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      throw new NotFoundException(`임메일을 찾을수 없습니다`);
+    }
+
+    return user;
+  }
+
   async deleteId(id: number) {
     const user = await this.userRepository.findOneBy({ id });
 
@@ -29,8 +39,6 @@ export class UserService {
 
     // 사용자 삭제
     await this.userRepository.remove(user);
-
-    // 토큰삭제
 
     return user;
   }
