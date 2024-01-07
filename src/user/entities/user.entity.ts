@@ -2,9 +2,7 @@ import { Exclude } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
@@ -18,7 +16,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserRole } from '../types/user-role.type';
+import { Comments } from '../../cards/entities/comments.entity';
+import { Cards } from '../../cards/entities/cards.entity';
 
 @Entity('users')
 export class User {
@@ -29,6 +28,12 @@ export class User {
    * 이메일
    * @example "example@example.com"
    */
+  @OneToMany(() => Cards, (card) => card.user, { cascade: true })
+  cards: Cards[];
+
+  @OneToMany(() => Comments, (comment) => comment.user, { cascade: true })
+  comments: Comments[];
+
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })
