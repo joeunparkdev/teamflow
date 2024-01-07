@@ -85,6 +85,7 @@ export class AuthController {
       accessToken,
     };
   }
+  
   /**
    * 이메일 인증 (회원가입 및 비밀번호 잊어버릴때 이용)
    * @param emailVerifyDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO

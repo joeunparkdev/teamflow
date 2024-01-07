@@ -4,7 +4,6 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
@@ -18,12 +17,20 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Comments } from '../../comments/entities/comments.entity';
+import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToMany(() => Cards, (card) => card.user)
+  cards: Cards[];
+
+  @OneToMany(() => Comments, (comment) => comment.user)
+  comments: Comments[];
 
   /**
    * 이메일
