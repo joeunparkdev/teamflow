@@ -2,10 +2,7 @@ import { Controller, Post, Patch, Delete, Param, Body, Get,UseGuards, Put, Reque
 import { CardsService } from './cards.service';
 import { CardsDto } from './dto/cards.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { UserRole } from 'src/user/types/user-role.type';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { number } from 'joi';
+
 
 @Controller('cards')
 export class CardsController {

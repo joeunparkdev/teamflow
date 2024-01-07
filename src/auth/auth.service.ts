@@ -1,21 +1,36 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
+import { UserService } from 'src/user/user.service';
+import { ColumnStatus } from 'src/enums/columns-status.enum';
+import { UserStatus } from 'src/enums/user-status.enum';
+
+
+interface CustomRequest extends Request {
+  session: any;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
-  async signUp({ email, password, passwordConfirm, nickname }: SignUpDto) {
+  async signUp({ email, password, passwordConfirm, name }: SignUpDto) {
     const isPasswordMatched = password === passwordConfirm;
     if (!isPasswordMatched) {
       throw new BadRequestException(
@@ -23,9 +38,9 @@ export class AuthService {
       );
     }
 
-    const existedUser = await this.userRepository.findOneBy({ email });
+    const existedUser = await this.userRepository.findOne({ where: { email } });
     if (existedUser) {
-      throw new BadRequestException('이미 가입 된 이메일 입니다.');
+      throw new BadRequestException('이미 가입된 이메일입니다.');
     }
 
     const hashRounds = this.configService.get<number>('PASSWORD_HASH_ROUNDS');
@@ -34,17 +49,28 @@ export class AuthService {
     const user = await this.userRepository.save({
       email,
       password: hashedPassword,
-      nickname,
+      name,
     });
 
     return this.signIn(user.id);
   }
 
-  signIn(userId: number) {
-    const payload = { id: userId };
-    const accessToken = this.jwtService.sign(payload);
+  signIn(id: number) {
+    const payload = { id};
+    const accessToken = this.jwtService.sign(payload, {secret: process.env.JWT_SECRET});
+    const refreshToken = this.jwtService.sign(payload,  { secret: process.env.REFRESH_SECRET, expiresIn: '7d' });
+    this.userRepository.update(id, { refreshToken });
+    return { accessToken, refreshToken };
+  }
 
-    return { accessToken };
+  async refreshToken(userId: number, token: string) {
+    await this.validate(userId, token);
+    return this.signIn(userId);
+  }
+
+  private generateAccessToken(userId: number): string {
+    const accessToken = this.jwtService.sign({ id: userId });
+    return accessToken;
   }
 
   async validateUser({ email, password }: SignInDto) {
@@ -62,5 +88,37 @@ export class AuthService {
     }
 
     return { id: user.id };
+  }
+
+  async validaterefreshToken(
+    userId: number,
+    refreshToken: string,
+  ): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, refreshToken },
+    });
+    console.log(user);
+    console.log(userId);
+    console.log(refreshToken);
+    return user || null;
+  }
+
+  async validate(userId: number, refreshToken: string) {
+    const user = await this.validaterefreshToken(
+      userId,
+      refreshToken,
+    );
+    console.log(user);
+    console.log(userId);
+    console.log(refreshToken);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return user;
+  }
+
+  async updateUserToInactive(email: string): Promise<void> {
+    await this.userRepository.update({ email }, { status: UserStatus.Inactive});
   }
 }
