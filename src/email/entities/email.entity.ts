@@ -13,7 +13,9 @@ export class EmailVerification {
 
   @Column({default:1})
   attempts: number;
-
-  @Column()
-  expiry: number;
+  
+  @Column({ type: 'timestamp'}) 
+  expiry: Date;
+  
+  
 }

@@ -106,8 +106,7 @@ export class AuthController {
     }
 
     const emailSent = await this.emailService.sendVerificationEmail(
-      email,
-      verificationCode,
+      email
     );
 
     if (!emailSent) {
