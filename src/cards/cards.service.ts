@@ -7,11 +7,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cards } from './entities/cards.entity';
-import { CardsDto } from './dto/cards.dto';
+import { CardsDto } from './dtos/cards.dto';
 import { User } from 'src/user/entities/user.entity';
-import { createCommentDto } from './dto/create-comments.dto';
+import { CreateCommentDto } from '../comments/dtos/create-comments.dto';
 import { Comments } from '../comments/entities/comments.entity';
-import { UpdateCommentsDto } from './dto/update-comments.dto';
+import { UpdateCommentsDto } from '../comments/dtos/update-comments.dto';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -97,7 +97,7 @@ export class CardsService {
   async createComment(
     userId: number,
     cardId: number,
-    commentData: createCommentDto,
+    commentData: CreateCommentDto,
   ) {
     const user = await this.userService.findOneById(userId);
     if (!user) {

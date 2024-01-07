@@ -2,10 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comments } from '../comments/entities/comments.entity';
 import { Repository } from 'typeorm';
-import { createCommentDto } from '../cards/dto/create-comments.dto';
+import { CreateCommentDto } from './dtos/create-comments.dto';
 import { UserService } from '../user/user.service';
 import { CardsService } from '../cards/cards.service';
-import { UpdateCommentsDto } from '../cards/dto/update-comments.dto';
+import { UpdateCommentsDto } from './dtos/update-comments.dto';
 
 /*
 *
@@ -25,7 +25,7 @@ export class CommentsService {
   async createComment(
     userId: number,
     cardId: number,
-    commentData: createCommentDto,
+    commentData: CreateCommentDto,
   ) {
     const user = await this.userService.findOneById(userId);
     if (!user) {

@@ -13,10 +13,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CardsService } from './cards.service';
-import { CardsDto } from './dto/cards.dto';
+import { CardsDto } from './dtos/cards.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { createCommentDto } from './dto/create-comments.dto';
-import { UpdateCommentsDto } from './dto/update-comments.dto';
+import { CreateCommentDto } from '../comments/dtos/create-comments.dto';
+import { UpdateCommentsDto } from '../comments/dtos/update-comments.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('카드')

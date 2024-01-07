@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { createCommentDto } from '../cards/dto/create-comments.dto';
-import { UpdateCommentsDto } from '../cards/dto/update-comments.dto';
+import { CreateCommentDto } from './dtos/create-comments.dto';
+import { UpdateCommentsDto } from './dtos/update-comments.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('코멘트')
@@ -26,7 +26,7 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   createComment(
-    @Body() commentData: createCommentDto,
+    @Body() commentData: CreateCommentDto,
     @Param('cardId') cardId: number,
     @Req() req: any,
   ) {
