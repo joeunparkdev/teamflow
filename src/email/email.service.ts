@@ -11,12 +11,11 @@ const randomBytesAsync = promisify(randomBytes);
 
 @Injectable()
 export class EmailService {
-  
-  private authService: AuthService; 
+  private authService: AuthService;
 
   private transporter;
-  private readonly MAX_ATTEMPTS = 3;
-  private readonly EXPIRY_DURATION = 3 * 60 * 1000; // 3분
+  private readonly max_attempts = 3;
+  private readonly expiry_duration = 3 * 60 * 1000; // 3분
 
   constructor(
     @InjectRepository(EmailVerification)
@@ -49,34 +48,36 @@ export class EmailService {
 
   async generateVerificationCode(
     email: string,
-  ): Promise<{ code: string; expiry: number; remainingTime?: number }> {
+  ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
+    let verificationCode: string;
+    let expiry: Date;
+
     const existingCode = await this.emailVerificationRepository.findOne({
       where: { email },
     });
 
     if (existingCode) {
       if (
-        existingCode.attempts >= this.MAX_ATTEMPTS ||
-        Date.now() > existingCode.expiry
+        existingCode.attempts >= this.max_attempts ||
+        Date.now() > existingCode.expiry.getTime()
       ) {
-        // 회원이 허용된 시도 횟수를 초과하거나, 인증번호의 유효 기간이 지났을 경우
-        this.emailVerificationRepository.delete({ email });
+        // 기존 코드가 있지만 유효하지 않을 경우 삭제
+        await this.emailVerificationRepository.delete({ email });
       } else {
         // 이미 생성된 인증번호가 있고, 시도 횟수가 허용 범위 내에 있을 경우 기존 코드를 반환
+        expiry = existingCode.expiry;
         const remainingTime = Math.max(
           0,
-          Math.ceil((existingCode.expiry - Date.now()) / 1000),
-        ); // 남은 시간 (초)
-        return {
-          code: existingCode.code,
-          expiry: existingCode.expiry,
-          remainingTime,
-        };
+          Math.ceil((expiry.getTime() - Date.now()) / 1000),
+        );
+        return { code: existingCode.code, expiry, remainingTime };
       }
     }
 
-    const verificationCode = (await randomBytesAsync(6)).toString('hex');
-    const expiry = Date.now() + this.EXPIRY_DURATION;
+    // 기존 코드가 없거나 유효하지 않을 경우 새로운 코드 생성
+    verificationCode = (await randomBytesAsync(6)).toString('hex');
+    expiry = new Date();
+    expiry.setTime(expiry.getTime() + this.expiry_duration);
 
     // 데이터베이스에 저장
     await this.emailVerificationRepository.save({
@@ -85,8 +86,50 @@ export class EmailService {
       expiry,
     });
 
-    const remainingTime = Math.max(0, Math.ceil((expiry - Date.now()) / 1000)); // 남은 시간 (초)
+    const remainingTime = Math.max(
+      0,
+      Math.ceil((expiry.getTime() - Date.now()) / 1000),
+    );
     return { code: verificationCode, expiry, remainingTime };
+  }
+
+  async sendVerificationEmail(
+    email: string,
+  ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
+    const expiry = new Date();
+    expiry.setTime(expiry.getTime() + this.expiry_duration);
+
+    const verificationCode = (await randomBytesAsync(6)).toString('hex');
+    const remainingTime = Math.max(
+      0,
+      Math.ceil((expiry.getTime() - Date.now()) / 1000),
+    );
+
+    try {
+      await this.emailVerificationRepository.save({
+        email,
+        code: verificationCode,
+        expiry,
+      });
+      return { code: verificationCode, expiry, remainingTime };
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        // 중복된 이메일 주소로 인한 예외 처리
+        console.error(`Duplicate entry error for email: ${email}`);
+        console.error('Duplicate Entry Error Details:', error);
+        // 이미 존재하는 코드로 대체
+        const existingCode = await this.emailVerificationRepository.findOne({
+          where: { email },
+        });
+        return {
+          code: existingCode.code,
+          expiry: existingCode.expiry,
+          remainingTime,
+        };
+      }
+      // 다른 예외는 다시 throw
+      throw error;
+    }
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {
@@ -95,22 +138,19 @@ export class EmailService {
     });
 
     // 인증번호가 일치하고, 유효 기간 내에 있는 경우
-    if (
-      savedCode &&
-      savedCode.code === code &&
-      Date.now() <= savedCode.expiry
-    ) {
+    if (savedCode && savedCode.code === code) {
       // 기존에 저장된 인증번호 삭제
-      this.emailVerificationRepository.delete({ email });
+      await this.emailVerificationRepository.delete({ email });
       return true;
     }
 
     // 인증번호가 일치하지 않거나, 유효 기간이 지났을 경우
     if (savedCode) {
       savedCode.attempts += 1;
+      await this.emailVerificationRepository.save(savedCode);
 
       // 시도 횟수가 허용 범위를 초과하면 회원을 휴면 상태로 전환
-      if (savedCode.attempts >= this.MAX_ATTEMPTS) {
+      if (savedCode.attempts >= this.max_attempts) {
         console.log(
           `User with email ${email} exceeded maximum verification attempts.`,
         );
@@ -120,35 +160,5 @@ export class EmailService {
     }
 
     return false;
-  }
-
-  async sendVerificationEmail(
-    email: string,
-    verificationCodeData: {
-      code: string;
-      expiry: number;
-      remainingTime?: number;
-      timer?: NodeJS.Timeout;
-    },
-  ) {
-    try {
-      const { code, expiry, remainingTime, timer } = verificationCodeData;
-
-      const subject = '비밀번호 재설정을 위한 인증 코드';
-      const text = `인증 번호: ${code}`;
-
-      await this.sendEmail(email, subject, text);
-
-      return {
-        statusCode: 200,
-        message: '이메일 인증 코드를 전송했습니다.',
-      };
-    } catch (error) {
-      console.error('Error sending verification email:', error);
-      return {
-        statusCode: 500,
-        message: '이메일 인증 코드 전송 중 오류가 발생했습니다.',
-      };
-    }
   }
 }

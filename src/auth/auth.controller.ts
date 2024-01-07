@@ -21,6 +21,7 @@ import { EmailVerifyDto } from './dtos/email-verify.dto';
 import { EmailService } from 'src/email/email.service';
 import { VerifyCodeDto } from './dtos/verify-code.dto';
 import { extractTokenFromHeader } from 'src/helpers/auth.helper';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @ApiTags('인증')
 @Controller('auth')
@@ -85,8 +86,9 @@ export class AuthController {
       accessToken,
     };
   }
+
   /**
-   * 이메일 인증 (회원가입 및 비밀번호 잊어버릴때 이용)
+   * 이메일 인증 (비밀번호 분실시)
    * @param emailVerifyDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
    * @returns 인증 번호를 이메일로 전송한 결과 메시지
    */
@@ -104,10 +106,7 @@ export class AuthController {
       };
     }
 
-    const emailSent = await this.emailService.sendVerificationEmail(
-      email,
-      verificationCode,
-    );
+    const emailSent = await this.emailService.sendVerificationEmail(email);
 
     if (!emailSent) {
       return {
@@ -149,4 +148,34 @@ export class AuthController {
       };
     }
   }
+
+   /**
+   * 비밀번호 재설정
+   * @param resetPasswordDto 
+   * @returns 비밀번호 재설정 결과 메시지
+   */
+    @HttpCode(HttpStatus.OK)
+    @Post('/reset-password')
+    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+      const { email, newPassword, verificationCode } = resetPasswordDto;
+  
+      const verificationResult = await this.emailService.verifyCode(
+        email,
+        verificationCode,
+      );
+  
+      if (verificationResult) {
+        await this.authService.resetPassword(email, newPassword);
+  
+        return {
+          statusCode: HttpStatus.OK,
+          message: '비밀번호 재설정에 성공했습니다.',
+        };
+      } else {
+        return {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '인증 실패',
+        };
+      }
+    }
 }

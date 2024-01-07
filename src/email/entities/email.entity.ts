@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('email_verification')
 export class EmailVerification {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
@@ -11,9 +11,11 @@ export class EmailVerification {
   @Column()
   code: string;
 
-  @Column()
+  @Column({default:1})
   attempts: number;
-
-  @Column()
-  expiry: number;
+  
+  @Column({ type: 'timestamp'}) 
+  expiry: Date;
+  
+  
 }
