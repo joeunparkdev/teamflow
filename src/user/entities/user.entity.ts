@@ -17,25 +17,25 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Comments } from '../../cards/entities/comments.entity';
+import { Comments } from '../../comments/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToMany(() => Cards, (card) => card.user)
+  cards: Cards[];
+
+  @OneToMany(() => Comments, (comment) => comment.user)
+  comments: Comments[];
 
   /**
    * 이메일
    * @example "example@example.com"
    */
-  @OneToMany(() => Cards, (card) => card.user, { cascade: true })
-  cards: Cards[];
-
-  @OneToMany(() => Comments, (comment) => comment.user, { cascade: true })
-  comments: Comments[];
-
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })

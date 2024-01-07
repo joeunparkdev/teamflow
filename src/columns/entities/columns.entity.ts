@@ -20,7 +20,7 @@ import { UserRole } from '../../user/types/user-role.type';
 
 @Entity('columns')
 export class Columns{
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
 
   /**

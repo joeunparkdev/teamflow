@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Comments } from './comments.entity';
+import { Comments } from '../../comments/entities/comments.entity';
 
 @Entity('cards')
 export class Cards {
@@ -43,8 +43,8 @@ export class Cards {
   @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
   comments: Comments[];
 
-  @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' }) 
+  @JoinColumn()
   user: User;
 
   @CreateDateColumn()

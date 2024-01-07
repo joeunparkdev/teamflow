@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -19,7 +20,6 @@ import { UpdateCommentsDto } from './dto/update-comments.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('카드')
-@UseGuards(JwtAuthGuard)
 @Controller('cards')
 export class CardsController {
   constructor(private cardsService: CardsService) {}
@@ -33,14 +33,20 @@ export class CardsController {
   async getCard(@Param('cardId') cardId: number) {
     return await this.cardsService.getCard(cardId);
   }
-
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createCard(@Body() cardsDto: CardsDto, @Request() req) {
     const user_id = req.user.id;
     const careated_card = await this.cardsService.createCard(cardsDto, user_id);
-    return careated_card;
+    return {
+      statusCode: HttpStatus.OK,
+      message: '카드 생성에 성공했습니다.',
+      careated_card,
+    };
   }
-
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Put(':cardId')
   async updateCard(
     @Param('cardId') cardId: number,
@@ -63,42 +69,45 @@ export class CardsController {
   }
 
   // localhost:3000/comments/1(:cardId)
-  @ApiBearerAuth()
-  @Post(':cardId/comments')
-  createComment(
-    @Body() commentData: createCommentDto,
-    @Param('cardId') cardId: number,
-    @Req() req: any,
-  ) {
-    return this.cardsService.createComment(req.user.id, cardId, commentData);
-  }
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @Post(':cardId/comments')
+  // createComment(
+  //   @Body() commentData: createCommentDto,
+  //   @Param('cardId') cardId: number,
+  //   @Req() req: any,
+  // ) {
+  //   return this.cardsService.createComment(req.user.id, cardId, commentData);
+  // }
 
-  @Get(':cardId/comments')
-  getCommentsByCardId(@Param('cardId') cardId: number) {
-    return this.cardsService.getCommentsByCardId(cardId);
-  }
+  // @Get(':cardId/comments')
+  // getCommentsByCardId(@Param('cardId') cardId: number) {
+  //   return this.cardsService.getCommentsByCardId(cardId);
+  // }
 
-  // getCommentsByCardId
-
-  @Patch(':cardId/comments/:commentId')
-  updateOneComment(
-    @Body() updateData: UpdateCommentsDto,
-    @Param('commentId') commentId: number,
-    @Req() req: any,
-  ) {
-    return this.cardsService.updateOneComment(
-      commentId,
-      req.user.id,
-      updateData,
-    );
-  }
-
-  @Delete(':cardId/comments/:commentId')
-  deleteOneComment(
-    @Param('cardId') cardId: number,
-    @Param('commentId') commentId: number,
-    @Req() req: any,
-  ) {
-    return this.cardsService.deleteOneComment(cardId, commentId, req.user.id);
-  }
+  // // getCommentsByCardId
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @Put(':cardId/comments/:commentId')
+  // updateOneComment(
+  //   @Body() updateData: UpdateCommentsDto,
+  //   @Param('commentId') commentId: number,
+  //   @Req() req: any,
+  // ) {
+  //   return this.cardsService.updateOneComment(
+  //     commentId,
+  //     req.user.id,
+  //     updateData,
+  //   );
+  // }
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @Delete(':cardId/comments/:commentId')
+  // deleteOneComment(
+  //   @Param('cardId') cardId: number,
+  //   @Param('commentId') commentId: number,
+  //   @Req() req: any,
+  // ) {
+  //   return this.cardsService.deleteOneComment(cardId, commentId, req.user.id);
+  // }
 }

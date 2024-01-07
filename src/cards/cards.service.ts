@@ -10,7 +10,7 @@ import { Cards } from './entities/cards.entity';
 import { CardsDto } from './dto/cards.dto';
 import { User } from 'src/user/entities/user.entity';
 import { createCommentDto } from './dto/create-comments.dto';
-import { Comments } from './entities/comments.entity';
+import { Comments } from '../comments/entities/comments.entity';
 import { UpdateCommentsDto } from './dto/update-comments.dto';
 import { UserService } from '../user/user.service';
 
