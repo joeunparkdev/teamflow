@@ -1,3 +1,4 @@
+import { IsRgbColor } from 'class-validator';
 import { User } from 'src/user/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn} from 'typeorm';
 
@@ -19,11 +20,11 @@ export class Cards {
     deadline: Date;
 
     @Column({ type:"simple-array",nullable: true })
-    assignedUserId:string[];
+    assignedUserId:number[];
 
     @Column({ type:"bigint",nullable: true })
     orderNum:number;
-    
+
     @Column({ type:"varchar",nullable: false })
     status:string;
 

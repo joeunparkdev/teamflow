@@ -35,11 +35,11 @@ export class CardsService {
     }
 
     async createCard(cardsDto:CardsDto,user_id:number){
-        const cards_num=(await this.cardsRepository.find()).length 
-        const user_ids=await this.userRepository.find({select:["id"]});
-       /* cardsDto.assignedUserId.map((e)=>{
-            user_ids.find((uid)=>uid==e);
-        })*/
+        const cards_num=(await this.cardsRepository.find()).length;
+
+        for(let i of cardsDto.assignedUserId){
+           await this.verifyUserById(i);
+        }
 
         await this.cardsRepository.save({
             name:cardsDto.name,
@@ -66,6 +66,14 @@ export class CardsService {
         await this.checkCard(one_card.createUserId,user_id)
         await this.cardsRepository.delete({id:cardId});
         
+    }
+
+    private async verifyUserById(userId:number){
+        const one_user= await this.userRepository.findOneBy({id:userId});
+        if(_.isNil(one_user)){
+            throw new NotFoundException("존재하지 않는 사용자 입니다.");
+        }
+        return one_user;
     }
 
     private async verifyCardById(cardId:number){

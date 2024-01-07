@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsDate, IsHexColor, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CardsDto{
     @IsString()
@@ -6,18 +6,18 @@ export class CardsDto{
     name:string;
 
     @IsString()
-    description: string;
+    description: string|null;
+
+    @IsHexColor()
+    color:string|null;
 
     @IsString()
-    color:string;
-
-    @IsString()
-    deadline: Date;
+    deadline: Date|null;
 
     @IsArray()
-    assignedUserId:string[];
+    assignedUserId:number[]|null;
     
     @IsString()
-    status:string;
+    status:string|null;
     
 }
