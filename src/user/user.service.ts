@@ -30,8 +30,6 @@ export class UserService {
     // 사용자 삭제
     await this.userRepository.remove(user);
 
-    // 토큰삭제
-
     return user;
   }
 
