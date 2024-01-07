@@ -1,5 +1,6 @@
 import { Exclude } from 'class-transformer';
 import {
+  IsDate,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -7,6 +8,8 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+import { ColumnStatus } from 'src/enums/columns-status.enum';
+import { UserStatus } from 'src/enums/user-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -55,8 +58,53 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ nullable: true }) 
+  /**
+   * 휴대폰 번호
+   * @example "010-000-0000"
+   */
+  @IsString()
+  @Column({ nullable: true })
+  phone: string;
+
+  /**
+   * 생년월일
+   * @example "7001010"
+   */
+  @IsDate()
+  @Column({ nullable: true })
+  birthdate: Date;
+
+  /**
+   * 역할
+   * @example "Customer"
+   */
+
+  @IsEnum(UserRole)
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.Customer })
+  role: UserRole;
+
+  /**
+   * 상태
+   * @example "Active"
+   */
+  @IsEnum(UserStatus)
+  @Column({ default: 'Active' })
+  status: UserStatus;
+
+  @Column({ nullable: true })
   refreshToken: string;
+
+  @Column()
+  verificationCode: string;
+
+  @Column({ nullable: true })
+  kakaoId: string;
+
+  @Column({ nullable: true })
+  googleId: string;
+
+  @Column({ nullable: true })
+  appleId: string;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -6,6 +6,8 @@ import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { ColumnsController } from './columns/columns.controller';
+import { ColumnsModule } from './columns/columns.module';
 
 @Module({
   imports: [
@@ -16,7 +18,8 @@ import { UserModule } from './user/user.module';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     AuthModule,
     UserModule,
+    ColumnsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ColumnsController],
 })
 export class AppModule {}

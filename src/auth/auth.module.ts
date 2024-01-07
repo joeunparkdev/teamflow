@@ -10,11 +10,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { UserService } from 'src/user/user.service';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
     PassportModule,
+    EmailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -27,7 +29,13 @@ import { UserService } from 'src/user/user.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy, UserService], // UserService 추가
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    UserService,
+  ], 
   exports: [TypeOrmModule.forFeature([User])],
 })
 export class AuthModule {}

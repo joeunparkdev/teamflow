@@ -13,6 +13,9 @@ import { SignInDto } from './dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
+import { ColumnStatus } from 'src/enums/columns-status.enum';
+import { UserStatus } from 'src/enums/user-status.enum';
+
 
 interface CustomRequest extends Request {
   session: any;
@@ -53,34 +56,21 @@ export class AuthService {
   }
 
   signIn(id: number) {
-    const payload = { id };
-    const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    const payload = { id};
+    const accessToken = this.jwtService.sign(payload, {secret: process.env.JWT_SECRET});
+    const refreshToken = this.jwtService.sign(payload,  { secret: process.env.REFRESH_SECRET, expiresIn: '7d' });
     this.userRepository.update(id, { refreshToken });
     return { accessToken, refreshToken };
   }
 
-  async refreshToken(refreshToken: string) {
-    try {
-      console.log('Received Refresh Token:', refreshToken);
+  async refreshToken(userId: number, token: string) {
+    await this.validate(userId, token);
+    return this.signIn(userId);
+  }
 
-      // "Bearer " 제거 후 토큰 추출
-      const token = refreshToken.replace('Bearer ', '');
-      console.log('Extracted Token:', token);
-
-      // 토큰 검증
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.REFRESH_TOKEN_SECRET,
-      });
-      console.log('Decoded Refresh Token:', decoded);
-
-      // 사용자 ID를 가져오기
-      const userId = decoded.id; // 'id' 필드를 사용
-      console.log('User ID from Refresh Token:', userId);
-    } catch (err) {
-      console.error('토큰 검증 및 갱신 중 오류 발생:', err);
-      throw new UnauthorizedException('토큰이 유효하지 않습니다.');
-    }
+  private generateAccessToken(userId: number): string {
+    const accessToken = this.jwtService.sign({ id: userId });
+    return accessToken;
   }
 
   async validateUser({ email, password }: SignInDto) {
@@ -100,7 +90,7 @@ export class AuthService {
     return { id: user.id };
   }
 
-  async validateRefreshToken(
+  async validaterefreshToken(
     userId: number,
     refreshToken: string,
   ): Promise<User | null> {
@@ -108,19 +98,27 @@ export class AuthService {
       where: { id: userId, refreshToken },
     });
     console.log(user);
+    console.log(userId);
+    console.log(refreshToken);
     return user || null;
   }
 
-  async validate(payload: any) {
-    console.log(payload);
-    const user = await this.userService.validateRefreshToken(
-      payload.sub,
-      payload.refreshToken,
+  async validate(userId: number, refreshToken: string) {
+    const user = await this.validaterefreshToken(
+      userId,
+      refreshToken,
     );
+    console.log(user);
+    console.log(userId);
+    console.log(refreshToken);
     if (!user) {
       throw new UnauthorizedException();
     }
 
     return user;
+  }
+
+  async updateUserToInactive(email: string): Promise<void> {
+    await this.userRepository.update({ email }, { status: UserStatus.Inactive});
   }
 }

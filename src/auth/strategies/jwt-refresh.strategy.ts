@@ -1,8 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../auth.service';
+import { refreshTokenDto } from '../dtos/refresh-token.dto';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -15,34 +16,20 @@ export class JwtRefreshStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
-    console.log('JwtRefreshStrategy validate:', payload);
     try {
-      const refreshToken = payload?.refreshToken || payload?.rfsToken;
-      console.log(refreshToken);
-      if (!refreshToken) {
-        console.error('Refresh token is missing in payload:', payload);
-        throw new UnauthorizedException('토큰이 유효하지 않습니다.');
-      }
+      console.log('JwtRefreshStrategy - Validating:', payload);
 
-      const user = await this.authService.validateRefreshToken(
-        payload.sub,
-        refreshToken,
-      );
-      if (!user) {
-        console.error('Refresh token validation failed:', payload);
-        throw new UnauthorizedException();
-      }
-
-      return user;
+      const id = payload.id
+      console.log('JwtRefreshStrategy - Validation successful:', id);
+      return {id};
     } catch (error) {
-      console.error('Error in validate:', error);
-      throw new UnauthorizedException();
+      console.error('JwtRefreshStrategy - Error in validate:', error);
+      throw new UnauthorizedException('인증에 실패했습니다.');
     }
   }
 }
