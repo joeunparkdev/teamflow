@@ -19,6 +19,22 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
+   * 전체 회원 정보 조회
+   * @param req
+   * @returns
+   */
+  @Get('')
+  async allUsers() {
+    const data = await this.userService.findAllUsers();
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '전체 회원 조회에 성공했습니다.',
+      data,
+    };
+  }
+
+  /**
    * 내 정보 조회
    * @param req
    * @returns
@@ -43,38 +59,38 @@ export class UserController {
    * @param req
    * @returns
    */
-   @ApiBearerAuth()
-   @UseGuards(JwtAuthGuard)
-   @Put('/me')
-   async updateMyInfo(@Request() req, @Body() updateMyInfoDto: UpdateMyInfoDto) {
-     const userId = req.user.id;
- 
-     const data = await this.userService.updateMyInfo(userId,updateMyInfoDto);
- 
-     return {
-       statusCode: HttpStatus.OK,
-       message: '내 정보 수정에 성공했습니다.',
-       data,
-     };
-   }
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Put('/me')
+  async updateMyInfo(@Request() req, @Body() updateMyInfoDto: UpdateMyInfoDto) {
+    const userId = req.user.id;
+
+    const data = await this.userService.updateMyInfo(userId, updateMyInfoDto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '내 정보 수정에 성공했습니다.',
+      data,
+    };
+  }
 
   /**
    * 회원 탈퇴
    * @param req
    * @returns
    */
-   @ApiBearerAuth()
-   @UseGuards(JwtAuthGuard)
-   @Delete('/me')
-   async deleteMe(@Request() req) {
-     const userId = req.user.id;
-   
-     const data = await this.userService.deleteId(userId);
-   
-     return {
-       statusCode: HttpStatus.OK,
-       message: '회원탈퇴에 성공했습니다.',
-       data,
-     };
-   }
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('/me')
+  async deleteMe(@Request() req) {
+    const userId = req.user.id;
+
+    const data = await this.userService.deleteId(userId);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '회원탈퇴에 성공했습니다.',
+      data,
+    };
+  }
 }

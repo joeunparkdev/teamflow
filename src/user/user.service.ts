@@ -11,6 +11,16 @@ export class UserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
 
+  async findAllUsers() {
+    const users = await this.userRepository.find();
+
+    if (!users) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    return users;
+  }
+
   async findOneById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
 

@@ -21,7 +21,11 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  // localhost:3000/comments/1(:cardId)
+   /**
+   * 댓글 만들기
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -33,12 +37,20 @@ export class CommentsController {
     return this.commentsService.createComment(req.user.id, cardId, commentData);
   }
 
+   /**
+   * 댓글 상세 보기
+   * @returns
+   */
   @Get()
   getCommentsByCardId(@Param('cardId') cardId: number) {
     return this.commentsService.getCommentsByCardId(cardId);
   }
 
-  // getCommentsByCardId
+  /**
+   * 댓글 수정
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Put('/:commentId')
@@ -53,6 +65,12 @@ export class CommentsController {
       updateData,
     );
   }
+
+    /**
+   * 댓글 삭제
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete('/:commentId')
