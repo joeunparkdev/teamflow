@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ColumnStatus } from 'src/enums/columns-status.enum';
 
 export class ColumnsDto {
@@ -11,6 +11,6 @@ export class ColumnsDto {
   orderNum: number;
 
   @IsNotEmpty({ message: '상태를 입력해 주세요.' })
-  @IsNumber({}, { message: '상태는 숫자여야 합니다.' })
+  @IsString({})
   status: ColumnStatus;
 }
