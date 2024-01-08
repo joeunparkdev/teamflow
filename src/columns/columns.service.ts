@@ -12,6 +12,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Cards } from 'src/cards/entities/cards.entity';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { LexoRank } from 'lexorank';
+import { col } from 'sequelize';
 
 @Injectable()
 export class ColumnsService {
@@ -30,10 +31,6 @@ export class ColumnsService {
       relations: { cards: true },
     });
 
-    if (!many_column.length) {
-      throw new NotFoundException('컬럼이 없습니다.');
-    }
-
     return many_column;
   }
 
@@ -45,6 +42,17 @@ export class ColumnsService {
       relations: { cards: true },
     });
     return one_column;
+  }
+
+  async getLastColumn(boardId: number): Promise<Columns> {
+    const lastColumn = await this.columnsRepository.findOne({
+      where: { boardId },
+      select: ['id', 'name', 'position'],
+      order: { position: 'DESC' },
+      relations: { cards: true },
+    });
+
+    return lastColumn;
   }
 
   async createColumn(
@@ -60,16 +68,29 @@ export class ColumnsService {
       console.error('Error in createColumn:');
       throw new BadRequestException('같은 이름의 컬럼이 존재합니다.');
     }
-    
+
     //1. 아무 컬럼이 없을때는 LexoRank.middle로 값생성
+    const lastColumn = await this.getLastColumn(boardId);
+    if (!lastColumn) {
+      const noColumns = LexoRank.middle().toString();
+      const created_column = await this.columnsRepository.save({
+        ...columnsDto,
+        position: noColumns,
+        createdUserId: userId,
+        boardId,
+      });
+
+      return created_column;
+    }
+
     //2. 컬럼이 있을때는 마지막 컬럼 기준으로 genNext()로 값 할당
-    const columns_num = await this.columnsRepository.count({
-      where: { boardId },
-    });
+    const withColumns = lastColumn.position;
+    const withLexo = LexoRank.parse(withColumns);
+    const withLexoNext = withLexo.genNext().toString();
 
     const created_column = await this.columnsRepository.save({
       ...columnsDto,
-      order: columns_num,
+      position: withLexoNext,
       createdUserId: userId,
       boardId,
     });
@@ -165,88 +186,4 @@ export class ColumnsService {
       { position: betweenColumnPosition.toString() },
     );
   }
-
-
-
-  // async moveColumn(
-  //   boardId: number,
-  //   columnId: number,
-  //   columnsMoveDto: ColumnsMoveDto,
-  //   userId: number,
-  // ) {
-  //   const columnToMove = await this.verifyColumnById(columnId, {
-  //     where: { boardId },
-  //   });
-  //   const originalOrder = columnToMove.order;
-  //   const newOrder = columnsMoveDto.order;
-  //   //이동 거리 계산
-  //   const distance = Math.abs(originalOrder - newOrder);
-  //   await this.updateOtherColumnsOrder(
-  //     boardId,
-  //     columnToMove,
-  //     originalOrder,
-  //     newOrder,
-  //     distance,
-  //   );
-
-  //   columnToMove.order = newOrder;
-  //   const movedColumn = await this.columnsRepository.save(columnToMove);
-
-  //   if (distance >= 1) {
-  //     const allColumns = await this.getAllColumns(boardId);
-  //     const otherColumn = allColumns.find((col) => col.id !== movedColumn.id);
-  //     const tempOrder = otherColumn.order;
-  //     otherColumn.order = movedColumn.order;
-  //     movedColumn.order = tempOrder;
-
-  //     await Promise.all([
-  //       this.columnsRepository.save(otherColumn),
-  //       this.columnsRepository.save(movedColumn),
-  //     ]);
-  //   }
-  //   return movedColumn;
-  // }
-
-  // async updateOtherColumnsOrder(
-  //   boardId: number,
-  //   movedColumn: Columns,
-  //   originalOrder: number,
-  //   newOrder: number,
-  //   distance: number,
-  // ) {
-  //   const allColumns = await this.getAllColumns(boardId);
-  //   const numColumns = allColumns.length;
-
-  //   if (numColumns <= 2) {
-  //     const otherColumn = allColumns.find(
-  //       (column) => column.id !== movedColumn.id,
-  //     );
-  //     const tempOrder = otherColumn.order;
-  //     otherColumn.order = movedColumn.order;
-  //     movedColumn.order = tempOrder;
-
-  //     await Promise.all([
-  //       this.columnsRepository.save(otherColumn),
-  //       this.columnsRepository.save(movedColumn),
-  //     ]);
-  //   } else {
-  //     for (const column of allColumns) {
-  //       if (column.id !== movedColumn.id) {
-  //         if (originalOrder < newOrder) {
-  //           // 오른쪽으로 이동
-  //           if (column.order > originalOrder && column.order <= newOrder) {
-  //             column.order -= distance;
-  //             await this.columnsRepository.save(column);
-  //           }
-  //         } else if (originalOrder > newOrder) {
-  //           // 왼쪽으로 이동
-  //           if (column.order < originalOrder && column.order >= newOrder) {
-  //             column.order += distance;
-  //             await this.columnsRepository.save(column);
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 }
