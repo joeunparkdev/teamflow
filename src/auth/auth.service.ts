@@ -15,9 +15,8 @@ import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
 import { ColumnStatus } from 'src/enums/columns-status.enum';
 import { UserStatus } from 'src/enums/user-status.enum';
-import { hashPassword } from '../helpers/password.helper'; 
+import { hashPassword } from '../helpers/password.helper';
 import passport from 'passport';
-
 
 interface CustomRequest extends Request {
   session: any;
@@ -57,12 +56,28 @@ export class AuthService {
     return this.signIn(user.id);
   }
 
-  signIn(id: number) {
-    const payload = { id};
-    const accessToken = this.jwtService.sign(payload, {secret: process.env.JWT_SECRET});
-    const refreshToken = this.jwtService.sign(payload,  { secret: process.env.REFRESH_SECRET, expiresIn: '7d' });
+  async signIn(id: number) {
+    const payload = { id };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.REFRESH_SECRET,
+      expiresIn: '7d',
+    });
     this.userRepository.update(id, { refreshToken });
     return { accessToken, refreshToken };
+  }
+
+  async signOut(id: number) {
+    console.log('id=', id);
+    const { refreshToken } = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    console.log('refreshToken', refreshToken);
+    this.userRepository.update(id, { refreshToken: '' });
+    console.log(this.userRepository.findOne({ where: { id } }));
   }
 
   async refreshToken(userId: number, token: string) {
@@ -99,20 +114,17 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { id: userId, refreshToken },
     });
-    console.log(user);
-    console.log(userId);
-    console.log(refreshToken);
+    console.log('validaterefreshToken user=', user);
+    console.log('validaterefreshToken userId=', userId);
+    console.log('validaterefreshToken refreshToken=', refreshToken);
     return user || null;
   }
 
   async validate(userId: number, refreshToken: string) {
-    const user = await this.validaterefreshToken(
-      userId,
-      refreshToken,
-    );
-    console.log(user);
-    console.log(userId);
-    console.log(refreshToken);
+    const user = await this.validaterefreshToken(userId, refreshToken);
+    console.log('validate user=', user);
+    console.log('validate userId=', userId);
+    console.log('validate refreshToken=', refreshToken);
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -121,7 +133,10 @@ export class AuthService {
   }
 
   async updateUserToInactive(email: string): Promise<void> {
-    await this.userRepository.update({ email }, { status: UserStatus.Inactive});
+    await this.userRepository.update(
+      { email },
+      { status: UserStatus.Inactive },
+    );
   }
 
   async resetPassword(email: string, newPassword: string): Promise<void> {
@@ -137,5 +152,4 @@ export class AuthService {
       await this.userRepository.save(user);
     }
   }
-
 }

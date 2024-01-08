@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -23,7 +27,9 @@ export class UserService {
 
   async findOneById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
-
+    if (user.refreshToken === '') {
+      throw new UnauthorizedException('로그아웃 상태입니다.');
+    }
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
@@ -33,7 +39,9 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<User | null> {
     const user = await this.userRepository.findOneBy({ email });
-
+    if (user.refreshToken === '') {
+      throw new UnauthorizedException('로그아웃 상태입니다.');
+    }
     if (!user) {
       throw new NotFoundException(`임메일을 찾을수 없습니다`);
     }
@@ -41,10 +49,15 @@ export class UserService {
     return user;
   }
 
-  async updateMyInfo(id: number, updateMyInfoDto: UpdateMyInfoDto): Promise<User> {
+  async updateMyInfo(
+    id: number,
+    updateMyInfoDto: UpdateMyInfoDto,
+  ): Promise<User> {
     try {
-      const user = await this.userRepository.findOneBy({id});
-
+      const user = await this.userRepository.findOneBy({ id });
+      if (user.refreshToken === '') {
+        throw new UnauthorizedException('로그아웃 상태입니다.');
+      }
       if (!user) {
         throw new Error('User not found');
       }
@@ -68,7 +81,9 @@ export class UserService {
 
   async deleteId(id: number) {
     const user = await this.userRepository.findOneBy({ id });
-
+    if (user.refreshToken === '') {
+      throw new UnauthorizedException('로그아웃 상태입니다.');
+    }
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
