@@ -71,9 +71,9 @@ export class BoardController {
     };
   }
 
-  @Post()
-  async inviteMember(@Body() email: InvitataionDto) {
-    const invitedMember = await this.boardService.inviteMember(email);
+  @Post('/invite')
+  async inviteMember(@Body() memberEmail: InvitataionDto) {
+    const invitedMember = await this.boardService.inviteMember(memberEmail);
 
     return {
       statusCode: 201,

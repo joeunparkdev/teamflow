@@ -73,12 +73,12 @@ export class BoardService {
 
     const content = {
       from: 'dbscks95@gmail.com',
-      to: `${memberEmail}`,
+      to: '1675b76dee-67cd69@inbox.mailtrap.io',
       subject: '이메일 테스트 제목입니다.',
       text: '이메일 테스트 제목에 따른 내용입니다.',
     };
 
-    this.sendEmail(email, content);
+    await this.sendEmail(email, content);
   }
   // error문제에서 try catch로 바꾸기
   async sendEmail(email: object, data: object) {
