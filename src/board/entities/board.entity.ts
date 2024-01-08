@@ -1,7 +1,9 @@
+import { Columns } from 'src/columns/entities/columns.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -21,6 +23,9 @@ export class Board {
 
   @Column({ type: 'text', nullable: false }) //mysql 타입은 text
   description: string; // typescript 에서는 string
+
+  @OneToMany(() => Columns, (column) => column.board, { cascade: true })
+  columns: Columns[];
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;

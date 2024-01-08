@@ -42,6 +42,7 @@ export class BoardService {
   async findBoardById(boardId: number) {
     const board = await this.boardRepository.findOne({
       where: { id: boardId },
+      relations: { columns: { cards: { comments: true } } },
     });
 
     if (_.isNil(board)) {

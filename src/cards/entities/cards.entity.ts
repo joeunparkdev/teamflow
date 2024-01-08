@@ -1,3 +1,4 @@
+import { Columns } from 'src/columns/entities/columns.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -46,6 +47,10 @@ export class Cards {
   @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' }) 
   @JoinColumn()
   user: User;
+
+  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  columns: Columns;
 
   @CreateDateColumn()
   createdAt: Date;

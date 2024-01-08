@@ -7,11 +7,15 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+import { Board } from 'src/board/entities/board.entity';
+import { Cards } from 'src/cards/entities/cards.entity';
 import { ColumnStatus } from 'src/enums/columns-status.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -62,6 +66,14 @@ export class Columns {
   @IsEnum(ColumnStatus)
   @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
   status: ColumnStatus;
+
+  @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  board: Board;
+
+  @OneToMany(() => Cards, (card) => card.columns, { cascade: true })
+  @JoinColumn()
+  cards: Cards[];
 
   @Column({ nullable: false })
   createdUserId: number;
