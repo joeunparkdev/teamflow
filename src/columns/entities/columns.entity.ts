@@ -56,11 +56,11 @@ export class Columns {
 
   /**
    * 상태
-   * @example "9"
+   * @example "Todo"
    */
-  @IsNotEmpty({ message: '보드 아이디를 입력해 주세요.' })
-  @IsNumber()
-  @Column()
+  @IsNotEmpty({ message: '보드 상태를 입력해 주세요.' })
+  @IsEnum(ColumnStatus)
+  @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
   status: ColumnStatus;
 
   @Column({ nullable: false })

@@ -149,33 +149,33 @@ export class AuthController {
     }
   }
 
-   /**
+  /**
    * 비밀번호 재설정
-   * @param resetPasswordDto 
+   * @param resetPasswordDto
    * @returns 비밀번호 재설정 결과 메시지
    */
-    @HttpCode(HttpStatus.OK)
-    @Post('/reset-password')
-    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-      const { email, newPassword, verificationCode } = resetPasswordDto;
-  
-      const verificationResult = await this.emailService.verifyCode(
-        email,
-        verificationCode,
-      );
-  
-      if (verificationResult) {
-        await this.authService.resetPassword(email, newPassword);
-  
-        return {
-          statusCode: HttpStatus.OK,
-          message: '비밀번호 재설정에 성공했습니다.',
-        };
-      } else {
-        return {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: '인증 실패',
-        };
-      }
+  @HttpCode(HttpStatus.OK)
+  @Post('/reset-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    const { email, newPassword, verificationCode } = resetPasswordDto;
+
+    const verificationResult = await this.emailService.verifyCode(
+      email,
+      verificationCode,
+    );
+
+    if (verificationResult) {
+      await this.authService.resetPassword(email, newPassword);
+
+      return {
+        statusCode: HttpStatus.OK,
+        message: '비밀번호 재설정에 성공했습니다.',
+      };
+    } else {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: '인증 실패',
+      };
     }
+  }
 }

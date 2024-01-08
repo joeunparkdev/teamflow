@@ -70,7 +70,8 @@ export class ColumnsService {
   }
 
   private async verifyColumnById(columnId: number, options?: FindOneOptions<Columns>): Promise<Columns> {
-    const one_column = await this.columnsRepository.findOne(columnId);
+    const one_column = await this.columnsRepository.findOne(
+        {where: {id:columnId}});
     if (!one_column) {
       throw new NotFoundException('존재하지 않는 컬럼 입니다.');
     }
