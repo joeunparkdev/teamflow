@@ -30,7 +30,6 @@ export class BoardService {
     const updatedBoard = await this.findBoardById(boardId);
     const { name, backgroundColor, description } = updateBoardDto;
 
-    // 위에도 그렇고 이상하게 description만 넣으면 문제가 생기네
     await this.boardRepository.update(boardId, {
       name,
       backgroundColor,
@@ -62,18 +61,23 @@ export class BoardService {
   // 나중에 중요 내용들 .env에 포함시키기
   async inviteMember(memberEmail: InvitataionDto) {
     const email = {
-      host: 'sandbox.smtp.mailtrap.io',
-      port: 2525,
-      secure: false,
+      // host: 'sandbox.smtp.mailtrap.io',
+      // port: 2525,
+      // secure: false,
+      // auth: {
+      //   user: 'd84940eb5ced50',
+      //   pass: 'b9e7444fe50a24',
+      // },
+      service: 'gmail',
       auth: {
-        user: 'd84940eb5ced50',
-        pass: 'b9e7444fe50a24',
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     };
 
     const content = {
-      from: 'dbscks95@gmail.com',
-      to: '1675b76dee-67cd69@inbox.mailtrap.io',
+      from: process.env.EMAIL_USER,
+      to: 'rladbscks95@gmail.com',
       subject: '이메일 테스트 제목입니다.',
       text: '이메일 테스트 제목에 따른 내용입니다.',
     };
