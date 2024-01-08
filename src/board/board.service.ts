@@ -89,6 +89,7 @@ export class BoardService {
     nodemailer.createTransport(email).sendMail(data, function (error, info) {
       if (error) {
         console.log(error);
+        console.log('zz');
       } else {
         console.log(info);
         return info.response;
