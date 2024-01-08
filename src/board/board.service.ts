@@ -5,14 +5,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
 import _ from 'lodash';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
-import { InvitataionDto } from './dto/invitation.dto';
+import { InvitationDto } from './dto/invitation.dto';
 import nodemailer from 'nodemailer';
+import { VerificationCode } from './entities/verificationCode.entity';
+import { promisify } from 'util';
+import { randomBytes } from 'crypto';
 
+
+const randomBytesAsync = promisify(randomBytes);
 @Injectable()
 export class BoardService {
   constructor(
     @InjectRepository(Board)
     private readonly boardRepository: Repository<Board>,
+    @InjectRepository(VerificationCode)
+    private readonly verificationCodeRepository: Repository<VerificationCode>,
   ) {}
   async postBoard(boardDto: BoardDto) {
     const { name, backgroundColor, description } = boardDto;
@@ -60,7 +67,10 @@ export class BoardService {
   }
 
 
-  async inviteMember(memberEmail: InvitataionDto) {
+  async inviteMember(invitationDto: InvitationDto) {
+    const {memberEmail} = invitationDto
+    const verificationCode = await this.createVerificationCode(memberEmail)
+    
     const email = {
       service: 'gmail',
       auth: {
@@ -71,12 +81,14 @@ export class BoardService {
 
     const content = {
       from: process.env.EMAIL_USER,
-      to: 'rladbscks95@gmail.com',
-      subject: '이메일 테스트 제목입니다.',
-      text: '이메일 테스트 제목에 따른 내용입니다.',
+      to: `${memberEmail}`,
+      subject: '보드 초대 확인 인증 번호',
+      text: `${verificationCode}`,
     };
 
     await this.sendEmail(email, content);
+
+    return memberEmail
   }
 
   async sendEmail(email: object, data: object) {
@@ -91,5 +103,18 @@ export class BoardService {
       console.error(error);
       throw error;
     }
+  }
+
+  async createVerificationCode(memberEmail:string) {
+    const verificationCode = (await randomBytesAsync(6)).toString('hex');
+
+    const expiry = new Date();
+    await this.verificationCodeRepository.save({
+      email: memberEmail,
+      code: verificationCode,
+      expiry
+    })
+
+    return verificationCode
   }
 }

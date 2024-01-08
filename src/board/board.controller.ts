@@ -10,7 +10,8 @@ import {
 import { BoardService } from './board.service';
 import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
-import { InvitataionDto } from './dto/invitation.dto';
+import { InvitationDto } from './dto/invitation.dto';
+import { CodeDto } from './dto/code.dto';
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
@@ -72,13 +73,18 @@ export class BoardController {
   }
 
   @Post('/invite')
-  async inviteMember(@Body() memberEmail: InvitataionDto) {
-    const invitedMember = await this.boardService.inviteMember(memberEmail);
+  async inviteMember(@Body() invitationDto:InvitationDto) {
+    const invitedMember = await this.boardService.inviteMember(invitationDto);
 
     return {
       statusCode: 201,
-      message: '', //`${}를 ${}보드에 초대했습니다.`
+      message: `${invitedMember} 이메일로 초대 인증 메세지를 전송했습니다.`,
       data: invitedMember,
     };
+  }
+
+  @Post("checkMember")
+  async checkInvitedMember(code: CodeDto) {
+    await this.boardService.checkInvitedMember(code)
   }
 }
