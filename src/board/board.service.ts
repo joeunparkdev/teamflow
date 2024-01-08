@@ -59,16 +59,9 @@ export class BoardService {
     return deletedBoard;
   }
 
-  // 나중에 중요 내용들 .env에 포함시키기
+
   async inviteMember(memberEmail: InvitataionDto) {
     const email = {
-      // host: 'sandbox.smtp.mailtrap.io',
-      // port: 2525,
-      // secure: false,
-      // auth: {
-      //   user: 'd84940eb5ced50',
-      //   pass: 'b9e7444fe50a24',
-      // },
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
@@ -85,16 +78,18 @@ export class BoardService {
 
     await this.sendEmail(email, content);
   }
-  // error문제에서 try catch로 바꾸기
+
   async sendEmail(email: object, data: object) {
-    nodemailer.createTransport(email).sendMail(data, function (error, info) {
-      if (error) {
-        console.log(error);
-        console.log('zz');
-      } else {
-        console.log(info);
-        return info.response;
-      }
-    });
+    try {
+      const transporter = nodemailer.createTransport(email);
+      
+      const info = await transporter.sendMail(data);
+      
+      console.log(info);
+      return info.response;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 }
