@@ -13,11 +13,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CardsService } from './cards.service';
-import { CardsDto } from './dto/cards.dto';
+import { CardsDto } from './dtos/cards.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-import { createCommentDto } from './dto/create-comments.dto';
-import { UpdateCommentsDto } from './dto/update-comments.dto';
+import { CreateCommentDto } from '../comments/dtos/create-comments.dto';
+import { UpdateCommentsDto } from '../comments/dtos/update-comments.dto';
+
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 
@@ -73,46 +74,5 @@ export class CardsController {
     return await this.cardsService.deleteCard(cardId, user_id);
   }
 
-  // localhost:3000/comments/1(:cardId)
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @Post(':cardId/comments')
-  // createComment(
-  //   @Body() commentData: createCommentDto,
-  //   @Param('cardId') cardId: number,
-  //   @Req() req: any,
-  // ) {
-  //   return this.cardsService.createComment(req.user.id, cardId, commentData);
-  // }
-
-  // @Get(':cardId/comments')
-  // getCommentsByCardId(@Param('cardId') cardId: number) {
-  //   return this.cardsService.getCommentsByCardId(cardId);
-  // }
-
-  // // getCommentsByCardId
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @Put(':cardId/comments/:commentId')
-  // updateOneComment(
-  //   @Body() updateData: UpdateCommentsDto,
-  //   @Param('commentId') commentId: number,
-  //   @Req() req: any,
-  // ) {
-  //   return this.cardsService.updateOneComment(
-  //     commentId,
-  //     req.user.id,
-  //     updateData,
-  //   );
-  // }
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
-  // @Delete(':cardId/comments/:commentId')
-  // deleteOneComment(
-  //   @Param('cardId') cardId: number,
-  //   @Param('commentId') commentId: number,
-  //   @Req() req: any,
-  // ) {
-  //   return this.cardsService.deleteOneComment(cardId, commentId, req.user.id);
-  // }
+  
 }

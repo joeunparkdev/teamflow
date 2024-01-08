@@ -16,8 +16,8 @@ export class CardsDto{
 
     @IsArray()
     assignedUserId:number[]|null;
-    
+    /*
     @IsString()
     status:string|null;
-    
+    */
 }

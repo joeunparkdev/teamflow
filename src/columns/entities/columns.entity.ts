@@ -17,9 +17,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../../user/types/user-role.type';
+import { Cards } from 'src/cards/entities/cards.entity';
 
 @Entity('columns')
-export class Columns{
+export class Columns {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -39,8 +40,7 @@ export class Columns{
   @IsNumber(
     {},
     {
-      message:
-        '컬럼 순서는 숫자로만 입력 가능합니다.',
+      message: '컬럼 순서는 숫자로만 입력 가능합니다.',
     },
   )
   @Column({ unique: true })
@@ -55,16 +55,23 @@ export class Columns{
   @Column()
   boardId: number;
 
-    /**
+  /**
    * 상태
-   * @example "9"
+   * @example "Todo"
    */
-     @IsNotEmpty({ message: '보드 아이디를 입력해 주세요.' })
-     @IsNumber()
-     @Column()
-     status: ColumnStatus;
+  @IsNotEmpty({ message: '보드 상태를 입력해 주세요.' })
+  @IsEnum(ColumnStatus)
+  @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
+  status: ColumnStatus;
 
+  
+  @OneToMany(()=>Cards,(card)=>card.column)
+  card:Cards[];
 
+  @Column({ nullable: false })
+  createdUserId: number;
+
+    
 
   @CreateDateColumn()
   createdAt: Date;

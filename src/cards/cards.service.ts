@@ -8,11 +8,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cards } from './entities/cards.entity';
-import { CardsDto } from './dto/cards.dto';
+import { CardsDto } from './dtos/cards.dto';
 import { User } from 'src/user/entities/user.entity';
-import { createCommentDto } from './dto/create-comments.dto';
+import { CreateCommentDto } from '../comments/dtos/create-comments.dto';
 import { Comments } from '../comments/entities/comments.entity';
-import { UpdateCommentsDto } from './dto/update-comments.dto';
+import { UpdateCommentsDto } from '../comments/dtos/update-comments.dto';
 import { UserService } from '../user/user.service';
 */
 
@@ -20,10 +20,10 @@ import _ from 'lodash';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cards } from './entity/cards.entity';
-import { CardsDto } from './dto/cards.dto';
+import { Cards } from './entities/cards.entity';
+import { CardsDto } from './dtos/cards.dto';
 import { User } from 'src/user/entities/user.entity';
-
+import { Columns } from 'src/columns/entities/columns.entity';
 
 @Injectable()
 export class CardsService {
@@ -69,7 +69,6 @@ export class CardsService {
         deadline:cardsDto.deadline,
         assignedUserId:cardsDto.assignedUserId,
         orderNum: cards_num,
-        status:cardsDto.status,
         createUserId:user_id,
     })
 }
@@ -77,10 +76,7 @@ export class CardsService {
   async updateCard(cardId: number, cardsDto: CardsDto, user_id: number) {
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
-    const updated_card = await this.cardsRepository.update(
-      { id: cardId },
-      cardsDto,
-    );
+    const updated_card = await this.cardsRepository.update({ id: cardId },cardsDto,);
 
     return updated_card;
   }
@@ -116,7 +112,7 @@ export class CardsService {
   async createComment(
     userId: number,
     cardId: number,
-    commentData: createCommentDto,
+    commentData: CreateCommentDto,
   ) {
     const user = await this.userService.findOneById(userId);
     if (!user) {

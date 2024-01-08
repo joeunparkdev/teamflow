@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { createCommentDto } from '../cards/dto/create-comments.dto';
-import { UpdateCommentsDto } from '../cards/dto/update-comments.dto';
+import { CreateCommentDto } from './dtos/create-comments.dto';
+import { UpdateCommentsDto } from './dtos/update-comments.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('코멘트')
@@ -21,24 +21,36 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
-  // localhost:3000/comments/1(:cardId)
+   /**
+   * 댓글 만들기
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   createComment(
-    @Body() commentData: createCommentDto,
+    @Body() commentData: CreateCommentDto,
     @Param('cardId') cardId: number,
     @Req() req: any,
   ) {
     return this.commentsService.createComment(req.user.id, cardId, commentData);
   }
 
+   /**
+   * 댓글 상세 보기
+   * @returns
+   */
   @Get()
   getCommentsByCardId(@Param('cardId') cardId: number) {
     return this.commentsService.getCommentsByCardId(cardId);
   }
 
-  // getCommentsByCardId
+  /**
+   * 댓글 수정
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Put('/:commentId')
@@ -53,6 +65,12 @@ export class CommentsController {
       updateData,
     );
   }
+
+    /**
+   * 댓글 삭제
+   * @param commentsDto
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete('/:commentId')

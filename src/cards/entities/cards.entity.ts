@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
+import { Columns } from 'src/columns/entities/columns.entity';
 
 @Entity('cards')
 export class Cards {
@@ -29,10 +30,17 @@ export class Cards {
   deadline: Date;
 
   @Column({ type: 'simple-array', nullable: true })
-  assignedUserId: string[];
+  assignedUserId: number[];
 
   @Column({ type: 'bigint', nullable: true })
   orderNum: number;
+
+  @ManyToOne(() => Columns, (column) => column.card, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "column_id", referencedColumnName: "id" })
+  column: Columns;
+
+  @Column({type:"bigint",name:"column_id"})
+  column_id:number;
 
   @Column({ type: 'varchar', nullable: false })
   status: string;

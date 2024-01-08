@@ -83,11 +83,11 @@ export class User {
 
   /**
    * 역할
-   * @example "Customer"
+   * @example "Collaborator"
    */
 
   @IsEnum(UserRole)
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.Customer })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.User})
   role: UserRole;
 
   /**
@@ -100,9 +100,6 @@ export class User {
 
   @Column({ nullable: true })
   refreshToken: string;
-
-  @Column()
-  verificationCode: string;
 
   @Column({ nullable: true })
   kakaoId: string;

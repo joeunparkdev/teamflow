@@ -10,8 +10,9 @@ import { UserModule } from './user/user.module';
 
 import { CardsModule } from './cards/cards.module';
 import { ColumnsController } from './columns/columns.controller';
-import { ColumnsModule } from './columns/columns.module';
+
 import { CommentsModule } from './comments/comments.module';
+import { ColumnsModule } from './columns/columns.module';
 
 
 @Module({
@@ -26,7 +27,6 @@ import { CommentsModule } from './comments/comments.module';
     CardsModule,
     ColumnsModule,
     CommentsModule,
-
   ],
 })
 export class AppModule {}

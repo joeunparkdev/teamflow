@@ -15,6 +15,8 @@ import { Request } from 'express';
 import { UserService } from 'src/user/user.service';
 import { ColumnStatus } from 'src/enums/columns-status.enum';
 import { UserStatus } from 'src/enums/user-status.enum';
+import { hashPassword } from '../helpers/password.helper'; 
+import passport from 'passport';
 
 
 interface CustomRequest extends Request {
@@ -121,4 +123,19 @@ export class AuthService {
   async updateUserToInactive(email: string): Promise<void> {
     await this.userRepository.update({ email }, { status: UserStatus.Inactive});
   }
+
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    const hashedPassword = await hashPassword(newPassword);
+
+    await this.updatePassword(email, hashedPassword);
+  }
+  async updatePassword(email: string, newPassword: string): Promise<void> {
+    const user = await this.userService.findOneByEmail(email);
+
+    if (user) {
+      user.password = newPassword;
+      await this.userRepository.save(user);
+    }
+  }
+
 }
