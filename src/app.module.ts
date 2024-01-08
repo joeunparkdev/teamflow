@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CardsModule } from './cards/cards.module';
 import { CommentsModule } from './comments/comments.module';
+import { ColumnsModule } from './columns/columns.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CommentsModule } from './comments/comments.module';
     UserModule,
     CardsModule,
     CommentsModule,
+    ColumnsModule,
   ],
 })
 export class AppModule {}
