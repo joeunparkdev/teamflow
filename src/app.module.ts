@@ -7,6 +7,9 @@ import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BoardModule } from './board/board.module';
+import { CardsModule } from './cards/cards.module';
+import { CommentsModule } from './comments/comments.module';
+import { ColumnsModule } from './columns/columns.module';
 
 @Module({
   imports: [
@@ -17,8 +20,10 @@ import { BoardModule } from './board/board.module';
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
     AuthModule,
     UserModule,
+    CardsModule,
+    CommentsModule,
+    ColumnsModule,
     BoardModule,
   ],
-  controllers: [AppController],
 })
 export class AppModule {}
