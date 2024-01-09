@@ -11,6 +11,7 @@ import { BoardService } from './board.service';
 import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitataionDto } from './dto/invitation.dto';
+
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
