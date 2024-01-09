@@ -29,7 +29,7 @@ export class ColumnsService {
       where: { boardId },
       select: ['id', 'name', 'position'],
       order: { position: 'ASC' },
-      relations: { cards: true },
+      relations: { cards: {comments:true} },
     });
 
     return many_column;
@@ -40,7 +40,7 @@ export class ColumnsService {
       where: { boardId },
       select: ['id', 'name', 'position'],
       order: { position: 'ASC' },
-      relations: { cards: true },
+      relations: { cards: {comments:true} },
     });
     return one_column;
   }

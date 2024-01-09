@@ -17,7 +17,7 @@ import { Comments } from '../../comments/entities/comments.entity';
 export class Cards {
   @PrimaryGeneratedColumn()
   id: number;
-
+  
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
@@ -43,11 +43,12 @@ export class Cards {
   createUserId: number;
 
   @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
+  @JoinColumn()
   comments: Comments[];
 
   @ManyToOne(() => Columns, (column) => column.cards, { onDelete: "CASCADE" })
   @JoinColumn({ name: "column_id", referencedColumnName: "id" })
-  column: Columns;
+  columns: Columns;
 
   @Column({type:"bigint",nullable:false})
   columnId:number;
@@ -56,10 +57,7 @@ export class Cards {
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  columns: Columns;
-
+ 
   @CreateDateColumn()
   createdAt: Date;
 
