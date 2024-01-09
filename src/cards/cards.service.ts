@@ -56,6 +56,7 @@ export class CardsService {
       where:{columnId}, 
       select: ['id', 'name', 'orderNum'],
       order: { orderNum: 'ASC' },
+      
     });
     
     let cards_num:number;
@@ -184,7 +185,9 @@ export class CardsService {
       throw new BadRequestException('올바르지 않은 컬럼 식별자입니다.');
   }
 
-    const one_column=await this.columnsRepository.findOneBy({id:columnId});
+    const one_column=await this.columnsRepository.findOne({
+      where:{id:columnId},
+    });
     if(_.isNil(one_column)){
       throw new NotFoundException("해당하는 컬럼은 존재하지 않습니다");
     }
@@ -198,6 +201,7 @@ export class CardsService {
       where:{columnId}, 
       select: ['id', 'name', 'orderNum'],
       order: { orderNum: 'ASC' },
+      relations: { comments: true },
     });
 
       if (!many_card.length) {
