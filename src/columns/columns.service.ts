@@ -12,7 +12,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Cards } from 'src/cards/entities/cards.entity';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { LexoRank } from 'lexorank';
-import { col } from 'sequelize';
+//import { col } from 'sequelize';
 
 @Injectable()
 export class ColumnsService {

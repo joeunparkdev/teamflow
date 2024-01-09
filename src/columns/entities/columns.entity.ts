@@ -22,6 +22,7 @@ import {
 } from 'typeorm';
 import { UserRole } from '../../user/types/user-role.type';
 
+
 @Entity('columns')
 export class Columns {
   @PrimaryGeneratedColumn()
@@ -58,6 +59,18 @@ export class Columns {
   @Column()
   boardId: number;
 
+
+  /**
+   * 상태
+   * @example "Todo"
+   */
+  // @IsNotEmpty({ message: '컬럼 상태를 입력해 주세요.' })
+  // @IsEnum(ColumnStatus)
+  // @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
+  // status: ColumnStatus;
+
+
+
   @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
   @JoinColumn()
   board: Board;
@@ -66,8 +79,11 @@ export class Columns {
   @JoinColumn()
   cards: Cards[];
 
+
   @Column({ nullable: false })
   createdUserId: number;
+
+    
 
   @CreateDateColumn()
   createdAt: Date;
