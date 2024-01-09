@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -7,7 +6,6 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { ColumnStatus } from 'src/enums/columns-status.enum';
 import { UserStatus } from 'src/enums/user-status.enum';
 import {
   Column,
@@ -17,7 +15,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Comments } from '../../comments/entities/comments.entity';
+import { Comments } from '../../cards/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 
@@ -98,7 +96,7 @@ export class User {
   @Column({ default: 'Active' })
   status: UserStatus;
 
-  @Column({ nullable: true })
+  @Column({ name: 'refresh_token', nullable: true })
   refreshToken: string;
 
   @Column({ nullable: true })

@@ -13,8 +13,8 @@ export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
     username: configService.get<string>('DB_USERNAME'),
     password: configService.get<string>('DB_PASSWORD'),
     database: configService.get<string>('DB_NAME'),
-    synchronize: configService.get<boolean>('DB_SYNC'),
+    synchronize: false,
     autoLoadEntities: true,
-    // logging: true,
+    logging: true,
   }),
 };

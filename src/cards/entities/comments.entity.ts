@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
-import { Cards } from '../../cards/entities/cards.entity';
+import { Cards } from './cards.entity';
 
 @Entity('comments')
 export class Comments {
@@ -16,18 +16,12 @@ export class Comments {
   id: number;
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @ManyToOne(() => Cards, (card) => card.comments, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'card_id' })
   card: Cards;
-
-  @Column()
-  userId: number;
-  
-  @Column()
-  cardId: number;
 
   @Column()
   comment: string;
