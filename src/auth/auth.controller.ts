@@ -25,7 +25,6 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { UserService } from 'src/user/user.service';
 import { PasswordResetUserDto } from './dtos/password-reset-user.dto';
 
-
 @ApiTags('인증')
 @Controller('auth')
 export class AuthController {
@@ -78,7 +77,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('/sign-out')
   async signOut(@Request() req) {
-    console.log("req.user=",req.user);
+    console.log('req.user=', req.user);
     const data = await this.authService.signOut(req.user.id);
 
     return {
@@ -110,7 +109,7 @@ export class AuthController {
     };
   }
 
- /**
+  /**
    * 이메일 인증 (회원가입시)
    * @param emailVerifyDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
    * @returns 인증 번호를 이메일로 전송한 결과 메시지
@@ -129,7 +128,8 @@ export class AuthController {
       };
     }
 
-    const verificationCode = await this.emailService.generateVerificationCode(email);
+    const verificationCode =
+      await this.emailService.generateVerificationCode(email);
 
     if (!verificationCode) {
       return {
@@ -153,40 +153,41 @@ export class AuthController {
     };
   }
 
-
-    /**
+  /**
    * 이메일 인증 (비밀번호 재설정시)
    * @param passwordResetUserDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
    * @returns 인증 번호를 이메일로 전송한 결과 메시지
    */
-     @HttpCode(HttpStatus.OK)
-     @Post('/send-password-reset-email')
-     async sendPasswordResetEmail(@Body() passwordResetUserDto: PasswordResetUserDto) {
-       const { email } = passwordResetUserDto; 
-       const verificationCode =
-         await this.emailService.generateVerificationCode(email);
-   
-       if (!verificationCode) {
-         return {
-           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-           message: '인증 코드 생성에 실패했습니다.',
-         };
-       }
-   
-       const emailSent = await this.emailService.sendVerificationEmail(email);
-   
-       if (!emailSent) {
-         return {
-           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-           message: '이메일 전송에 실패했습니다.',
-         };
-       }
-   
-       return {
-         statusCode: HttpStatus.OK,
-         message: '이메일 인증 코드를 전송했습니다.',
-       };
-     }
+  @HttpCode(HttpStatus.OK)
+  @Post('/send-password-reset-email')
+  async sendPasswordResetEmail(
+    @Body() passwordResetUserDto: PasswordResetUserDto,
+  ) {
+    const { email } = passwordResetUserDto;
+    const verificationCode =
+      await this.emailService.generateVerificationCode(email);
+
+    if (!verificationCode) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: '인증 코드 생성에 실패했습니다.',
+      };
+    }
+
+    const emailSent = await this.emailService.sendVerificationEmail(email);
+
+    if (!emailSent) {
+      return {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: '이메일 전송에 실패했습니다.',
+      };
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '이메일 인증 코드를 전송했습니다.',
+    };
+  }
 
   /**
    * 회원가입시 인증 번호 검증

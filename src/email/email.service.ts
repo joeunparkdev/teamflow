@@ -51,11 +51,11 @@ export class EmailService {
   ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
     let verificationCode: string;
     let expiry: Date;
-
+  
     const existingCode = await this.emailVerificationRepository.findOne({
       where: { email },
     });
-
+  
     if (existingCode) {
       if (
         existingCode.attempts >= this.max_attempts ||
@@ -63,84 +63,89 @@ export class EmailService {
       ) {
         // 기존 코드가 있지만 유효하지 않을 경우 삭제
         await this.emailVerificationRepository.delete({ email });
-      } else {
-        // 이미 생성된 인증번호가 있고, 시도 횟수가 허용 범위 내에 있을 경우 기존 코드를 반환
-        expiry = existingCode.expiry;
-        const remainingTime = Math.max(
-          0,
-          Math.ceil((expiry.getTime() - Date.now()) / 1000),
-        );
-        return { code: existingCode.code, expiry, remainingTime };
       }
     }
-
-    // 기존 코드가 없거나 유효하지 않을 경우 새로운 코드 생성
+  
+    // 새로운 코드 생성
     verificationCode = (await randomBytesAsync(6)).toString('hex');
     expiry = new Date();
     expiry.setTime(expiry.getTime() + this.expiry_duration);
-
-    // 데이터베이스에 저장
+  
+    // 데이터베이스에 저장 또는 업데이트
     await this.emailVerificationRepository.save({
       email,
       code: verificationCode,
       expiry,
     });
-
+  
     const remainingTime = Math.max(
       0,
       Math.ceil((expiry.getTime() - Date.now()) / 1000),
     );
     return { code: verificationCode, expiry, remainingTime };
   }
+  
 
   async sendVerificationEmail(
     email: string,
   ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
-    const { code, expiry } = await this.generateVerificationCode(email);
-    const subject = '이메일 인증 번호';
-    const remainingTime = Math.max(
-      0,
-      Math.ceil((expiry.getTime() - Date.now()) / 1000),
-    );
     try {
+      // 이메일에 대한 기존 인증 정보 확인
+      const existingVerification = await this.emailVerificationRepository.findOne({
+        where: { email },
+      });
+  
+      let code: string;
+      let expiry: Date;
+      console.log(existingVerification);
+      if (existingVerification) {
+        // 이미 존재하는 인증 정보가 있을 경우 해당 코드와 만료 일자 재사용
+        code = existingVerification.code;
+        expiry = existingVerification.expiry;
+      } else {
+        // 존재하지 않는 경우 새로운 인증 코드 및 만료 일자 생성
+        const { code: newCode, expiry: newExpiry } = await this.generateVerificationCode(email);
+        code = newCode;
+        expiry = newExpiry;
+  
+        // 새로운 인증 정보 저장
+        await this.emailVerificationRepository.save({
+          email,
+          code,
+          expiry,
+        });
+      }
+  
+      const subject = '이메일 인증 번호';
+      const remainingTime = Math.max(
+        0,
+        Math.ceil((expiry.getTime() - Date.now()) / 1000),
+      );
+  
+      // 이메일 전송 옵션 설정
       const mailOptions = {
         from: process.env.EMAIL_USER, // 발신자 이메일
         to: email,
         subject: subject,
         text: code,
       };
-
+  
       try {
+        // 이메일 전송 시도
         const info = await this.transporter.sendMail(mailOptions);
       } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('이메일 전송 중 오류 발생:', error);
       }
-
-      await this.emailVerificationRepository.save({
-        email,
-        code,
-        expiry,
-      });
+  
+      // 생성된 코드, 만료 일자, 남은 시간 반환
       return { code, expiry, remainingTime };
     } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
-        // 중복된 이메일 주소로 인한 예외 처리
-        console.error(`Duplicate entry error for email: ${email}`);
-        console.error('Duplicate Entry Error Details:', error);
-        // 이미 존재하는 코드로 대체
-        const existingCode = await this.emailVerificationRepository.findOne({
-          where: { email },
-        });
-        return {
-          code: existingCode.code,
-          expiry: existingCode.expiry,
-          remainingTime,
-        };
-      }
-      // 다른 예외는 다시 throw
+      // 오류가 발생한 경우 적절히 처리
+      console.error('오류:', error);
       throw error;
     }
   }
+  
 
   async verifyCode(email: string, code: string): Promise<boolean> {
     const savedCode = await this.emailVerificationRepository.findOne({

@@ -138,6 +138,21 @@ export class AuthService {
     );
   }
 
+  async validateUserStatus(userId: number, refreshToken: string) {
+    const user = await this.validaterefreshToken(userId, refreshToken);
+  
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+  
+    if (user.status === UserStatus.Inactive) {
+      throw new UnauthorizedException('계정이 잠겼습니다. 관리자에게 문의하세요.');
+    }
+  
+    return user;
+  }
+  
+
   async resetPassword(email: string, newPassword: string): Promise<void> {
     const hashedPassword = await hashPassword(newPassword);
 
