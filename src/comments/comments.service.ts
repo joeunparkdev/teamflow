@@ -24,7 +24,7 @@ export class CommentsService {
     if (!user) {
       throw new BadRequestException('댓글을 달 수 있는 권한이 없습니다');
     }
-    const card = 1;
+    const card = cardId;
     if (!card) {
       throw new BadRequestException('댓글을 달수있는 카드가 없습니다');
     }

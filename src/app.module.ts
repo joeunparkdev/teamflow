@@ -15,7 +15,6 @@ import { ColumnsController } from './columns/columns.controller';
 import { CommentsModule } from './comments/comments.module';
 import { ColumnsModule } from './columns/columns.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,7 +27,7 @@ import { ColumnsModule } from './columns/columns.module';
     CardsModule,
     ColumnsModule,
     BoardModule,
-
+    CommentsModule,
   ],
 })
 export class AppModule {}
