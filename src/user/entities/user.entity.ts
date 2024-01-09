@@ -20,6 +20,7 @@ import {
 import { Comments } from '../../comments/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
+import { BoardUser } from 'src/board-user/entities/boardUser.entity';
 
 @Entity('users')
 export class User {
@@ -32,6 +33,8 @@ export class User {
   @OneToMany(() => Comments, (comment) => comment.user)
   comments: Comments[];
 
+  @OneToMany(() => BoardUser, (boardUser) => boardUser.user)
+  boardUsers: BoardUser[];
   /**
    * 이메일
    * @example "example@example.com"
@@ -87,7 +90,7 @@ export class User {
    */
 
   @IsEnum(UserRole)
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.User})
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
   role: UserRole;
 
   /**

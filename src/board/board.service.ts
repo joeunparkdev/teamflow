@@ -16,7 +16,7 @@ import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { CodeDto } from './dto/code.dto';
 import { EmailVerification } from 'src/email/entities/email.entity';
-import { BoardUser } from '../board-user/board-user.entity.ts/boardUser.entity';
+import { BoardUser } from 'src/board-user/entities/boardUser.entity';
 import { User } from 'src/user/entities/user.entity';
 
 const randomBytesAsync = promisify(randomBytes);
@@ -34,19 +34,28 @@ export class BoardService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async postBoard(boardDto: BoardDto) {
+  async postBoard(userId, boardDto: BoardDto) {
     const { name, backgroundColor, description } = boardDto;
 
     const postedBoard = await this.boardRepository.save({
       name,
       backgroundColor,
       description,
+      creator: userId,
     });
 
     return postedBoard;
   }
 
-  async updateBoard(boardId: number, updateBoardDto: UpdateBoardDto) {
+  async updateBoard(userId, boardId: number, updateBoardDto: UpdateBoardDto) {
+    const user = await this.boardUserRepository.findOne({
+      where: { userId, boardId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('보드 수정 권한이 없는 유저입니다.');
+    }
+
     const updatedBoard = await this.findBoardById(boardId);
     const { name, backgroundColor, description } = updateBoardDto;
 
@@ -72,8 +81,20 @@ export class BoardService {
     return board;
   }
 
-  async deleteBoard(boardId: number) {
-    await this.findBoardById(boardId);
+  async deleteBoard(userId: number, boardId: number) {
+    const board = await this.findBoardById(boardId);
+
+    if (!board) {
+      throw new NotFoundException('해당하는 보드가 존재하지 않습니다.');
+    }
+
+    const user = await this.boardRepository.findOne({
+      where: { creator: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('보드를 생성한 유저만 삭제가 가능합니다.');
+    }
     const deletedBoard = await this.boardRepository.delete({ id: boardId });
 
     return deletedBoard;
@@ -137,7 +158,18 @@ export class BoardService {
     const savedCode = await this.verificationCodeRepository.findOne({
       where: { code },
     });
+
+    const user = await this.userRepository.findOne({ where: { email } });
     console.log(1);
+
+    if (!user) {
+      throw new NotFoundException('존재하지 않는 유저입니다.');
+    }
+    if (user.email !== email) {
+      throw new BadRequestException(
+        '입력한 이메일과 등록된 이메일이 다릅니다.',
+      );
+    }
     if (!savedCode) {
       throw new NotFoundException('인증 코드가 존재하지 않습니다.');
     }
@@ -149,7 +181,7 @@ export class BoardService {
     console.log(3);
     if (savedCode.code === code) {
       // board-user에 userId와 boardId 집어넣기
-      const user = await this.userRepository.findOne({ where: { email } });
+
       console.log(user);
       const userId = user.id;
       const boardUser = await this.boardUserRepository.save({

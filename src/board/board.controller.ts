@@ -6,6 +6,8 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { BoardDto } from './dto/board.dto';
@@ -14,6 +16,8 @@ import { InvitationDto } from './dto/invitation.dto';
 import { CodeDto } from './dto/code.dto';
 import { VerifyCodeDto } from 'src/auth/dtos/verify-code.dto';
 import { EmailService } from 'src/email/email.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+
 @Controller('board')
 export class BoardController {
   constructor(
@@ -21,12 +25,12 @@ export class BoardController {
     private readonly emailService: EmailService,
   ) {}
 
-  // 허용된 사용자만 게시할 수 있는 데코레이터 추가
-  // @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async postBoard(@Body() boardDto: BoardDto) {
+  async postBoard(@Request() req, @Body() boardDto: BoardDto) {
     try {
-      const postedBoard = await this.boardService.postBoard(boardDto);
+      const userId = req.user.id;
+      const postedBoard = await this.boardService.postBoard(userId, boardDto);
 
       return {
         statusCode: 201,
@@ -41,15 +45,18 @@ export class BoardController {
       };
     }
   }
-  // 허용된 사용자만 수정할 수 있는 데코레이터 추가
-  // @UseGuards(AuthGuard('local'))
+
+  @UseGuards(JwtAuthGuard)
   @Put(':boardId')
   async updateBoard(
+    @Request() req,
     @Param('boardId') boardId: number,
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
     try {
+      const userId = req.user.id;
       const updatedBoard = await this.boardService.updateBoard(
+        userId,
         boardId,
         updateBoardDto,
       );
@@ -69,12 +76,14 @@ export class BoardController {
     }
   }
 
-  // 허용된 사용자만 삭제할 수 있는 데코레이터 추가
-  // @UseGuards(AuthGuard('local'))
+  // creator만 삭제할 수 있도록 만들기
+  @UseGuards(JwtAuthGuard)
   @Delete(':boardId')
-  async deleteBoard(@Param('boardId') boardId: number) {
+  async deleteBoard(@Request() req, @Param('boardId') boardId: number) {
     try {
-      const deletedBoard = await this.boardService.deleteBoard(boardId);
+      const userId = req.user.id;
+
+      const deletedBoard = await this.boardService.deleteBoard(userId, boardId);
 
       return {
         statusCode: 200,
@@ -92,8 +101,6 @@ export class BoardController {
   }
 
   // workspace 안 만들었기 때문에 하나씩만 조회 가능하도록 만듦.
-  // 초대받은 사용자만 이용할 수 있도록 만들기
-  // @UseGuards(AuthGuard('local'))
   @Get(':boardId')
   async getBoard(@Param('boardId') boardId: number) {
     try {
@@ -113,7 +120,7 @@ export class BoardController {
     }
   }
 
-  // @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Post('/invite')
   async inviteMember(@Body() invitationDto: InvitationDto) {
     try {
@@ -133,7 +140,7 @@ export class BoardController {
     }
   }
 
-  // @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @Post('checkMember')
   async checkMember(@Body() codeDto: CodeDto) {
     try {
