@@ -35,7 +35,7 @@ export class CardsController {
   }
 
   @Get(':cardId')
-  async getCard(@Param('cardId') cardId: number) {
+  async getCard(@Param("columnId") columnId:number,@Param('cardId') cardId: number) {
     return await this.cardsService.getCard(cardId);
   }
   
