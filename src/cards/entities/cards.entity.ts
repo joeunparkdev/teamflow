@@ -33,14 +33,7 @@ export class Cards {
   assignedUserId: number[];
 
   @Column({ type: 'bigint', nullable: true })
-  orderNum: number;
-
-  @ManyToOne(() => Columns, (column) => column.card, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "column_id", referencedColumnName: "id" })
-  column: Columns;
-
-  @Column({type:"bigint",name:"column_id"})
-  column_id:number;
+  orderNum: number; 
 
   @Column({ type: 'varchar', nullable: false })
   status: string;
@@ -50,6 +43,13 @@ export class Cards {
 
   @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
   comments: Comments[];
+
+  @ManyToOne(() => Columns, (column) => column.card, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "column_id", referencedColumnName: "id" })
+  column: Columns;
+
+  @Column({type:"bigint",nullable:false})
+  columnId:number;
 
   @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' }) 
   @JoinColumn()

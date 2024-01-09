@@ -17,13 +17,14 @@ import { UserService } from '../user/user.service';
 */
 
 import _ from 'lodash';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cards } from './entities/cards.entity';
 import { CardsDto } from './dtos/cards.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Columns } from 'src/columns/entities/columns.entity';
+import { UpdateCardsDto } from './dtos/update-cards.dto';
 
 @Injectable()
 export class CardsService {
@@ -35,18 +36,12 @@ export class CardsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     //private readonly userService: UserService,
+    @InjectRepository(Columns)
+    private  columnsRepository: Repository<Columns>,
   ) {}
 
-  async getAllCards(): Promise<Cards[]> {
-    const many_card = await this.cardsRepository.find({
-      select: ['id', 'name', 'orderNum'],
-      order: { orderNum: 'ASC' },
-    });
-
-    if (!many_card.length) {
-      throw new NotFoundException('카드가 없습니다.');
-    }
-
+  async getAllCards(columnId:number) {
+    const many_card: any = await this.verifyAllCards(columnId);
     return many_card;
   }
 
@@ -55,34 +50,78 @@ export class CardsService {
     return one_card;
   }
 
-  async createCard(cardsDto:CardsDto,user_id:number){
-    const cards_num=(await this.cardsRepository.find()).length;
+  async createCard(cardsDto:CardsDto,user_id:number,columnId:number){
+    //const cards_num:number=(await this.cardsRepository.find()).length;
+    const many_card = await this.verifyAllCards(columnId);
+    const cards_num :number=Number(many_card[many_card.length-1].orderNum)+1
 
     for(let i of cardsDto.assignedUserId){
        await this.verifyUserById(i);
     }
 
+    const column= await this.verifyColumnById(columnId);
+    
     await this.cardsRepository.save({
         name:cardsDto.name,
         description:cardsDto.description,
         color:cardsDto.color,
         deadline:cardsDto.deadline,
         assignedUserId:cardsDto.assignedUserId,
+        status:column.name,
+        columnId:column.id,
         orderNum: cards_num,
         createUserId:user_id,
     })
 }
 
-  async updateCard(cardId: number, cardsDto: CardsDto, user_id: number) {
+  async updateCard(columnId:number,cardId: number, updateCardsDto: UpdateCardsDto, user_id: number) {
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
-    const updated_card = await this.cardsRepository.update({ id: cardId },cardsDto,);
 
-    return updated_card;
+    const many_card= await this.verifyAllCards(columnId);
+    const update_orderNum=Math.floor(updateCardsDto.orderNum);
+
+    //이동하려는 장소 orderNum이 0~마지막 카드의 orderNum인데 넘어가면 orderNumㅇ 
+    if(update_orderNum>many_card[many_card.length-1].orderNum){
+      updateCardsDto.orderNum=many_card[many_card.length-1].orderNum;
+    }
+    else if(updateCardsDto.orderNum<0){
+      updateCardsDto.orderNum=0;
+    }
+
+
+
+
+    /*
+    //카드를 현재보다 위로 이동했을 때 1 0
+    //one_card.orderNum와 updateCardsDto.orderNum 사이의 orderNum값을 -1해줌
+    if(one_card.orderNum>updateCardsDto.orderNum){
+      console.log("시작위치"+Number(updateCardsDto.orderNum)+1)
+      console.log("도착위치"+Number(one_card.orderNum)+1)
+      for(let i:number=Number(updateCardsDto.orderNum);i<Number(one_card.orderNum);i++){
+        console.log(i);
+        await this.cardsRepository.update({orderNum:i},{orderNum:Number(i)+1})
+      }
+      await this.cardsRepository.update({id:cardId},updateCardsDto)
+
+    }//카드를 현재보다 밑으로 이동했을 때
+    //one_card.orderNum와 updateCardsDto.orderNum 사이의 orderNum값을 +1해줌
+    else if(one_card.orderNum<updateCardsDto.orderNum){
+      for(let i:number=Number(one_card.orderNum);i<Number(updateCardsDto.orderNum)+1;i++){
+        await this.cardsRepository.update({orderNum:i},{orderNum:i-1})
+      }
+      await this.cardsRepository.update({id:cardId},updateCardsDto)
+    }
+    */
+
+    //const updated_card = await this.cardsRepository.update({ id: cardId },updateCardsDto,);
+
+    
   }
   
   async deleteCard(cardId: number, user_id: number) {
     const one_card = await this.verifyCardById(cardId);
+
     await this.checkCard(one_card.createUserId, user_id);
     await this.cardsRepository.delete({ id: cardId });
   }
@@ -90,7 +129,7 @@ export class CardsService {
   private async verifyUserById(userId:number){
     const one_user= await this.userRepository.findOneBy({id:userId});
     if(_.isNil(one_user)){
-        throw new NotFoundException("존재하지 않는 사용자 입니다.");
+        throw new NotFoundException("할당 하려는 사용자는 존재하지 않습니다.");
     }
     return one_user;
 }
@@ -105,10 +144,49 @@ export class CardsService {
 
   private async checkCard(createUserId: number, user_id: number) {
     if (createUserId != user_id) {
-      throw new NotFoundException('해당 카드를 수정할 수 없습니다.');
+      throw new NotFoundException('해당 카드를 수정/삭제할 수 없습니다.');
+    }
+
+  }
+  
+  private async verifyColumnById(columnId:number){
+   
+    if (isNaN(columnId) || !Number.isInteger(columnId)) {
+      throw new BadRequestException('올바르지 않은 컬럼 식별자입니다.');
+  }
+
+    const one_column=await this.columnsRepository.findOneBy({id:columnId});
+    if(_.isNil(one_column)){
+      throw new NotFoundException("해당하는 컬럼은 존재하지 않습니다");
+    }
+
+    return one_column;
+
+  }
+
+  private async verifyAllCards(columnId:number){
+    const many_card =await this.cardsRepository.find({
+      where:{columnId}, 
+      select: ['id', 'name', 'orderNum'],
+      order: { orderNum: 'ASC' },});
+
+      if (!many_card.length) {
+        throw new NotFoundException('카드가 없습니다.');
+      }
+
+    return many_card;
+  }
+
+/*
+  private async verifyStatus(column_name:string[],status:string){
+    const check_status= await column_name.find((e)=>{e==status});
+    if(!check_status){
+      throw new NotFoundException("해당하는 이름의 칼럼이 존재하지 않습니다")
     }
   }
-/*
+
+
+
   async createComment(
     userId: number,
     cardId: number,

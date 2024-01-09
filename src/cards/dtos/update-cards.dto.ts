@@ -1,9 +1,8 @@
 import { IsArray, IsDate, IsHexColor, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CardsDto{
+export class UpdateCardsDto{
     @IsString()
-    @IsNotEmpty({ message:"카드 이름을 작성해 주세요."})
-    name:string;
+    name:string|null;
 
     @IsString()
     description: string|null;
@@ -17,5 +16,10 @@ export class CardsDto{
     @IsArray()
     assignedUserId:number[]|null;
     
+    @IsNumber()
+    orderNum: number|null;
+
+    @IsString()
+    status:string|null;
     
 }
