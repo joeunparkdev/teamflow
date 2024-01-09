@@ -28,6 +28,7 @@ import { ColumnsModule } from './columns/columns.module';
     CardsModule,
     ColumnsModule,
     BoardModule,
+    CommentsModule
 
   ],
 })
