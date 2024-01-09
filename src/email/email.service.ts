@@ -93,18 +93,23 @@ export class EmailService {
     return { code: verificationCode, expiry, remainingTime };
   }
 
-  async sendVerificationEmail(email: string): Promise<string | null> {
-   // try {
-      const { code, expiry } = await this.generateVerificationCode(email);
-      const subject = "이메일 인증 번호";
-
+  async sendVerificationEmail(
+    email: string,
+  ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
+    const { code, expiry } = await this.generateVerificationCode(email);
+    const subject = '이메일 인증 번호';
+    const remainingTime = Math.max(
+      0,
+      Math.ceil((expiry.getTime() - Date.now()) / 1000),
+    );
+    try {
       const mailOptions = {
         from: process.env.EMAIL_USER, // 발신자 이메일
         to: email,
         subject: subject,
         text: code,
       };
-  
+
       try {
         const info = await this.transporter.sendMail(mailOptions);
       } catch (error) {
@@ -116,15 +121,25 @@ export class EmailService {
         code,
         expiry,
       });
-
-      return code;
-    // } catch (error) {
-    //   // 중복된 이메일에 대한 에러 처리
-    //   if (error.code === 'ER_DUP_ENTRY') {
-    //     return null;
-    //   }
-    //   throw error;
-    // }
+      return { code, expiry, remainingTime };
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        // 중복된 이메일 주소로 인한 예외 처리
+        console.error(`Duplicate entry error for email: ${email}`);
+        console.error('Duplicate Entry Error Details:', error);
+        // 이미 존재하는 코드로 대체
+        const existingCode = await this.emailVerificationRepository.findOne({
+          where: { email },
+        });
+        return {
+          code: existingCode.code,
+          expiry: existingCode.expiry,
+          remainingTime,
+        };
+      }
+      // 다른 예외는 다시 throw
+      throw error;
+    }
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {
