@@ -104,21 +104,6 @@ export class ColumnsController {
   }
 
   /**
-   * 컬럼 렉소 테스트
-   * @returns
-   */
-  @Get('/lexo/lexo2')
-  async lexoTest() {
-    // any lexorank
-    const any1LexoRank = LexoRank.min();
-    // another lexorank
-    const any2LexoRank = any1LexoRank.genNext().genNext();
-    // calculate between
-    const betweenLexoRank = any1LexoRank.between(any2LexoRank);
-    console.log(betweenLexoRank);
-  }
-
-  /**
    * 컬럼 이동
    * @param columnsMoveDto
    * @returns

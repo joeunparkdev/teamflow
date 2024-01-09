@@ -10,7 +10,6 @@ import {
 import { LexoRank } from 'lexorank';
 import { Board } from 'src/board/entities/board.entity';
 import { Cards } from 'src/cards/entities/cards.entity';
-import { ColumnStatus } from 'src/enums/columns-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -47,7 +46,7 @@ export class Columns {
       message: '컬럼 순서는 숫자로만 입력 가능합니다.',
     },
   )
-  @Column()
+  @Column({ unique: true })
   position: string;
 
   /**
@@ -58,15 +57,6 @@ export class Columns {
   @IsNumber()
   @Column()
   boardId: number;
-
-  /**
-   * 상태
-   * @example "Todo"
-   */
-  @IsNotEmpty({ message: '컬럼 상태를 입력해 주세요.' })
-  @IsEnum(ColumnStatus)
-  @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
-  status: ColumnStatus;
 
   @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
   @JoinColumn()
