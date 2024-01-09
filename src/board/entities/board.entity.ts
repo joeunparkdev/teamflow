@@ -25,7 +25,7 @@ export class Board {
   @Column({ type: 'text', nullable: false }) //mysql 타입은 text
   description: string; // typescript 에서는 string
 
-  @Column({ type: 'int', unique: true, nullable: false })
+  @Column({ type: 'int', nullable: false })
   creator: number;
 
   @OneToMany(() => Columns, (column) => column.board, { cascade: true })
