@@ -55,12 +55,31 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('local'))
   @Post('/sign-in')
-  signIn(@Request() req, @Body() signInDto: SignInDto) {
-    const data = this.authService.signIn(req.user.id);
+  async signIn(@Request() req, @Body() signInDto: SignInDto) {
+    const data = await this.authService.signIn(req.user.id);
 
     return {
       statusCode: HttpStatus.OK,
       message: '로그인에 성공했습니다.',
+      data,
+    };
+  }
+
+  /**
+   * 로그아웃
+   * @param req
+   * @returns
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/sign-out')
+  async signOut(@Request() req) {
+    console.log("req.user=",req.user);
+    const data = await this.authService.signOut(req.user.id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '로그아웃에 성공했습니다.',
       data,
     };
   }

@@ -11,8 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { LexoRank } from 'lexorank';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ColumnsService } from './columns.service';
+import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { ColumnsDto } from './dtos/columns.dto';
 
 @ApiTags('컬럼')
@@ -39,8 +41,11 @@ export class ColumnsController {
    * @returns
    */
   @Get(':columnId')
-  async getColumn(@Param('boardId') boardId: number,@Param('columnId') columnId: number) {
-    const column = await this.columnsService.getColumn(boardId,columnId);
+  async getColumn(
+    @Param('boardId') boardId: number,
+    @Param('columnId') columnId: number,
+  ) {
+    const column = await this.columnsService.getColumn(boardId, columnId);
     return {
       statusCode: HttpStatus.OK,
       message: '컬럼 상세 보기에 성공했습니다.',
@@ -56,10 +61,14 @@ export class ColumnsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createColumn(@Param('boardId') boardId: number,@Body() columnsDto: ColumnsDto, @Request() req) {
+  async createColumn(
+    @Param('boardId') boardId: number,
+    @Body() columnsDto: ColumnsDto,
+    @Request() req,
+  ) {
     const user_id = req.user.id;
     const created_column = await this.columnsService.createColumn(
-        boardId,
+      boardId,
       columnsDto,
       user_id,
     );
@@ -86,12 +95,51 @@ export class ColumnsController {
   ) {
     const user_id = req.user.id;
     const updated_column = await this.columnsService.updateColumn(
-        boardId,
+      boardId,
       columnId,
       columnsDto,
       user_id,
     );
     return updated_column;
+  }
+
+  /**
+   * 컬럼 렉소 테스트
+   * @returns
+   */
+  @Get('/lexo/lexo2')
+  async lexoTest() {
+    // any lexorank
+    const any1LexoRank = LexoRank.min();
+    // another lexorank
+    const any2LexoRank = any1LexoRank.genNext().genNext();
+    // calculate between
+    const betweenLexoRank = any1LexoRank.between(any2LexoRank);
+    console.log(betweenLexoRank);
+  }
+
+  /**
+   * 컬럼 이동
+   * @param columnsMoveDto
+   * @returns
+   */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Put(':columnId/order')
+  async moveColumn(
+    @Param('boardId') boardId: number,
+    @Param('columnId') columnId: number,
+    @Body() columnsMoveDto: ColumnsMoveDto,
+    @Request() req,
+  ) {
+    const user_id = req.user.id;
+    const moved_column = await this.columnsService.lexoMoveColumn(
+      boardId,
+      columnId,
+      columnsMoveDto,
+      user_id,
+    );
+    return moved_column;
   }
 
   /**
@@ -102,7 +150,11 @@ export class ColumnsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':columnId')
-  async deleteColumn(@Param('boardId') boardId: number, @Param('columnId') columnId: number, @Request() req) {
+  async deleteColumn(
+    @Param('boardId') boardId: number,
+    @Param('columnId') columnId: number,
+    @Request() req,
+  ) {
     const user_id = req.user.id;
     return await this.columnsService.deleteColumn(boardId, columnId, user_id);
   }

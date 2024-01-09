@@ -17,7 +17,7 @@ export class UpdateCardsDto{
     assignedUserId:number[]|null;
     
     @IsNumber()
-    orderNum: number|null;
+    cardPosition: number|null;
 
     @IsString()
     status:string|null;

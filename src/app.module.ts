@@ -7,6 +7,7 @@ import { typeOrmModuleOptions } from './configs/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 
+import { BoardModule } from './board/board.module';
 
 import { CardsModule } from './cards/cards.module';
 import { ColumnsController } from './columns/columns.controller';
@@ -26,7 +27,8 @@ import { ColumnsModule } from './columns/columns.module';
     UserModule,
     CardsModule,
     ColumnsModule,
-    CommentsModule,
+    BoardModule,
+
   ],
 })
 export class AppModule {}

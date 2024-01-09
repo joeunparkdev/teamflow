@@ -1,3 +1,4 @@
+import { Columns } from 'src/columns/entities/columns.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -10,7 +11,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
-import { Columns } from 'src/columns/entities/columns.entity';
+
 
 @Entity('cards')
 export class Cards {
@@ -32,7 +33,7 @@ export class Cards {
   @Column({ type: 'simple-array', nullable: true })
   assignedUserId: number[];
 
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'float', nullable: true })
   orderNum: number; 
 
   @Column({ type: 'varchar', nullable: false })
@@ -44,7 +45,7 @@ export class Cards {
   @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
   comments: Comments[];
 
-  @ManyToOne(() => Columns, (column) => column.card, { onDelete: "CASCADE" })
+  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: "CASCADE" })
   @JoinColumn({ name: "column_id", referencedColumnName: "id" })
   column: Columns;
 
@@ -54,6 +55,10 @@ export class Cards {
   @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' }) 
   @JoinColumn()
   user: User;
+
+  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  columns: Columns;
 
   @CreateDateColumn()
   createdAt: Date;

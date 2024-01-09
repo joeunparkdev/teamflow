@@ -52,8 +52,16 @@ export class CardsService {
 
   async createCard(cardsDto:CardsDto,user_id:number,columnId:number){
     //const cards_num:number=(await this.cardsRepository.find()).length;
-    const many_card = await this.verifyAllCards(columnId);
-    const cards_num :number=Number(many_card[many_card.length-1].orderNum)+1
+    const many_card =await this.cardsRepository.find({
+      where:{columnId}, 
+      select: ['id', 'name', 'orderNum'],
+      order: { orderNum: 'ASC' },
+    });
+    
+    let cards_num:number;
+    many_card.length>0?
+      cards_num =Number(many_card[many_card.length-1].orderNum)+1:
+      cards_num =1;
 
     for(let i of cardsDto.assignedUserId){
        await this.verifyUserById(i);
@@ -75,23 +83,44 @@ export class CardsService {
 }
 
   async updateCard(columnId:number,cardId: number, updateCardsDto: UpdateCardsDto, user_id: number) {
+    
+    //이거는 같은 컬럼에서의 이동
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
+    const column_by_name = await this.verifyColumnByName(updateCardsDto.status);//다른컬럼으로 이동시 업데이트 상태로 columnId를 받는다
+    const column_id =column_by_name[0].id;
 
-    const many_card= await this.verifyAllCards(columnId);
-    const update_orderNum=Math.floor(updateCardsDto.orderNum);
+    const many_card= await this.verifyAllCards(column_id);
+    
+
+    let cardMovePosition=Math.floor(updateCardsDto.cardPosition);//카드가 이동할 위치
+    
+    let updateOrderNum:number
 
     //이동하려는 장소 orderNum이 0~마지막 카드의 orderNum인데 넘어가면 orderNumㅇ 
-    if(update_orderNum>many_card[many_card.length-1].orderNum){
-      updateCardsDto.orderNum=many_card[many_card.length-1].orderNum;
+    if(cardMovePosition>many_card[many_card.length-1].orderNum){//가장뒤로 갈떄
+      
+      updateOrderNum=Number(many_card[many_card.length-1].orderNum)+1;
     }
-    else if(updateCardsDto.orderNum<0){
-      updateCardsDto.orderNum=0;
+    else if(cardMovePosition<many_card[0].orderNum){//가장 앞으로 갈 때
+      
+      updateOrderNum=Number(many_card[0].orderNum)/2;
     }
+    else{//그 외
+      updateOrderNum=(Number(many_card[cardMovePosition-1].orderNum)+Number(many_card[cardMovePosition].orderNum))/2
+    }
+   
 
-
-
-
+    await this.cardsRepository.update({id:cardId},{
+      name:updateCardsDto.name,
+      description:updateCardsDto.description,
+      color:updateCardsDto.color,
+      deadline:updateCardsDto.deadline,
+      assignedUserId:updateCardsDto.assignedUserId,
+      orderNum:updateOrderNum,
+      status:updateCardsDto.status,
+    });
+    
     /*
     //카드를 현재보다 위로 이동했을 때 1 0
     //one_card.orderNum와 updateCardsDto.orderNum 사이의 orderNum값을 -1해줌
@@ -168,11 +197,25 @@ export class CardsService {
     const many_card =await this.cardsRepository.find({
       where:{columnId}, 
       select: ['id', 'name', 'orderNum'],
-      order: { orderNum: 'ASC' },});
+      order: { orderNum: 'ASC' },
+    });
 
       if (!many_card.length) {
         throw new NotFoundException('카드가 없습니다.');
       }
+
+    return many_card;
+  }
+
+  private async verifyColumnByName(columnName:string){//이름으로 컬럼 id찾기
+    const many_card =await this.columnsRepository.find({
+      where:{name:columnName},
+      select:["id"],
+    });
+
+    if(!many_card.length){
+      throw new NotFoundException("그 러한 이름의 컬럼은 존재하지 않습니다 status를 다시 작성해 주세요")
+    }
 
     return many_card;
   }
@@ -184,6 +227,7 @@ export class CardsService {
       throw new NotFoundException("해당하는 이름의 칼럼이 존재하지 않습니다")
     }
   }
+
 
 
 
@@ -267,4 +311,5 @@ export class CardsService {
     }
     return this.commentsRepository.delete({ id: commentId });
   }*/
+
 }
