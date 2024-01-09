@@ -169,21 +169,47 @@ export class ColumnsService {
 
     const prev = columnsMoveDto.prev; //column id
     const next = columnsMoveDto.next; //column id
+    // prev값만 받을때 (맨 앞으로 움직일때)
+    if (!next) {
+      const prevColumnToMove = await this.verifyColumnById(prev, {
+        where: { boardId },
+      });
+      const prevColumnPosition = LexoRank.parse(prevColumnToMove.position);
+      const betweenColumnPosition =
+      prevColumnPosition.genNext(); //destination
+      return await this.columnsRepository.save(
+        { id: columnId ,
+         position: betweenColumnPosition.toString() },
+      );
+    }
+    // next값만 받을때 (맨 뒤로 움직일때)
+    if (!prev) {
+      const nextColumnToMove = await this.verifyColumnById(next, {
+        where: { boardId },
+      });
+      const nextColumnPosition = LexoRank.parse(nextColumnToMove.position);
+      const betweenColumnPosition =
+      nextColumnPosition.genPrev(); //destination
+      return await this.columnsRepository.save(
+        { id: columnId ,
+          position: betweenColumnPosition.toString() },
+      );
+    }
 
+    // prev과 next값을 받을때
     const prevColumnToMove = await this.verifyColumnById(prev, {
       where: { boardId },
     });
     const nextColumnToMove = await this.verifyColumnById(next, {
       where: { boardId },
     });
-
     const prevColumnPosition = LexoRank.parse(prevColumnToMove.position);
     const nextColumnPosition = LexoRank.parse(nextColumnToMove.position);
     const betweenColumnPosition =
       nextColumnPosition.between(prevColumnPosition); //destination
-    return await this.columnsRepository.update(
-      { id: columnId },
-      { position: betweenColumnPosition.toString() },
+    return await this.columnsRepository.save(
+      { id: columnId ,
+        position: betweenColumnPosition.toString() },
     );
   }
 }
