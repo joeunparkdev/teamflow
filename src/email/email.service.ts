@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { randomBytes } from 'crypto';
 import { promisify } from 'util';
@@ -93,43 +93,38 @@ export class EmailService {
     return { code: verificationCode, expiry, remainingTime };
   }
 
-  async sendVerificationEmail(
-    email: string,
-  ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
-    const expiry = new Date();
-    expiry.setTime(expiry.getTime() + this.expiry_duration);
+  async sendVerificationEmail(email: string): Promise<string | null> {
+   // try {
+      const { code, expiry } = await this.generateVerificationCode(email);
+      const subject = "이메일 인증 번호";
 
-    const verificationCode = (await randomBytesAsync(6)).toString('hex');
-    const remainingTime = Math.max(
-      0,
-      Math.ceil((expiry.getTime() - Date.now()) / 1000),
-    );
+      const mailOptions = {
+        from: process.env.EMAIL_USER, // 발신자 이메일
+        to: email,
+        subject: subject,
+        text: code,
+      };
+  
+      try {
+        const info = await this.transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.error('Error sending email:', error);
+      }
 
-    try {
       await this.emailVerificationRepository.save({
         email,
-        code: verificationCode,
+        code,
         expiry,
       });
-      return { code: verificationCode, expiry, remainingTime };
-    } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') {
-        // 중복된 이메일 주소로 인한 예외 처리
-        console.error(`Duplicate entry error for email: ${email}`);
-        console.error('Duplicate Entry Error Details:', error);
-        // 이미 존재하는 코드로 대체
-        const existingCode = await this.emailVerificationRepository.findOne({
-          where: { email },
-        });
-        return {
-          code: existingCode.code,
-          expiry: existingCode.expiry,
-          remainingTime,
-        };
-      }
-      // 다른 예외는 다시 throw
-      throw error;
-    }
+
+      return code;
+    // } catch (error) {
+    //   // 중복된 이메일에 대한 에러 처리
+    //   if (error.code === 'ER_DUP_ENTRY') {
+    //     return null;
+    //   }
+    //   throw error;
+    // }
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {
@@ -138,7 +133,11 @@ export class EmailService {
     });
 
     // 인증번호가 일치하고, 유효 기간 내에 있는 경우
-    if (savedCode && savedCode.code === code) {
+    if (
+      savedCode &&
+      savedCode.code === code &&
+      (await this.isValidExpiration(savedCode.expiry))
+    ) {
       // 기존에 저장된 인증번호 삭제
       await this.emailVerificationRepository.delete({ email });
       return true;
@@ -160,5 +159,10 @@ export class EmailService {
     }
 
     return false;
+  }
+
+  async isValidExpiration(expiration: Date): Promise<boolean> {
+    const currentDateTime = new Date();
+    return expiration > currentDateTime;
   }
 }

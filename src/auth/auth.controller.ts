@@ -22,6 +22,9 @@ import { EmailService } from 'src/email/email.service';
 import { VerifyCodeDto } from './dtos/verify-code.dto';
 import { extractTokenFromHeader } from 'src/helpers/auth.helper';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { UserService } from 'src/user/user.service';
+import { PasswordResetUserDto } from './dtos/password-reset-user.dto';
+
 
 @ApiTags('인증')
 @Controller('auth')
@@ -29,6 +32,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly emailService: EmailService,
+    private readonly userService: UserService,
   ) {}
 
   /**
@@ -106,17 +110,26 @@ export class AuthController {
     };
   }
 
-  /**
-   * 이메일 인증 (비밀번호 분실시)
+ /**
+   * 이메일 인증 (회원가입시)
    * @param emailVerifyDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
    * @returns 인증 번호를 이메일로 전송한 결과 메시지
    */
   @HttpCode(HttpStatus.OK)
   @Post('/send-verification-email')
   async sendVerificationEmail(@Body() emailVerifyDto: EmailVerifyDto) {
-    const { email } = emailVerifyDto; // EmailVerifyDto에서 email 추출
-    const verificationCode =
-      await this.emailService.generateVerificationCode(email);
+    const { email } = emailVerifyDto;
+
+    // 이메일 중복 체크
+    const existingUser = await this.userService.findOneByEmail(email);
+    if (existingUser) {
+      return {
+        statusCode: HttpStatus.CONFLICT,
+        message: '이미 등록된 이메일 주소입니다.',
+      };
+    }
+
+    const verificationCode = await this.emailService.generateVerificationCode(email);
 
     if (!verificationCode) {
       return {
@@ -140,8 +153,43 @@ export class AuthController {
     };
   }
 
+
+    /**
+   * 이메일 인증 (비밀번호 재설정시)
+   * @param passwordResetUserDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
+   * @returns 인증 번호를 이메일로 전송한 결과 메시지
+   */
+     @HttpCode(HttpStatus.OK)
+     @Post('/send-password-reset-email')
+     async sendPasswordResetEmail(@Body() passwordResetUserDto: PasswordResetUserDto) {
+       const { email } = passwordResetUserDto; 
+       const verificationCode =
+         await this.emailService.generateVerificationCode(email);
+   
+       if (!verificationCode) {
+         return {
+           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+           message: '인증 코드 생성에 실패했습니다.',
+         };
+       }
+   
+       const emailSent = await this.emailService.sendVerificationEmail(email);
+   
+       if (!emailSent) {
+         return {
+           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+           message: '이메일 전송에 실패했습니다.',
+         };
+       }
+   
+       return {
+         statusCode: HttpStatus.OK,
+         message: '이메일 인증 코드를 전송했습니다.',
+       };
+     }
+
   /**
-   * 인증 번호 검증
+   * 회원가입시 인증 번호 검증
    * @param verifyCodeDto - 사용자 이메일 및 인증 번호 비교
    * @returns 인증 결과 메시지
    */

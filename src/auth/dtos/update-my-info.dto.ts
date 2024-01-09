@@ -6,6 +6,7 @@ export class UpdateMyInfoDto {
    * @example "홍길동"
    */
    @IsString()
+   @IsOptional()
    name: string;
 
   /**
