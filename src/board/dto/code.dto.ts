@@ -1,7 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CodeDto {
+  @IsEmail()
+  readonly email: string;
+
   @IsString()
-  @IsNotEmpty({ message: '인증 코드를 입력해주세요.' })
-  code: string;
+  readonly verificationCode: string;
+
+  @IsNumber()
+  readonly boardId: number;
 }

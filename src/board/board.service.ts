@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BoardDto } from './dto/board.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,17 +14,26 @@ import nodemailer from 'nodemailer';
 import { VerificationCode } from './entities/verificationCode.entity';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
-
+import { CodeDto } from './dto/code.dto';
+import { EmailVerification } from 'src/email/entities/email.entity';
+import { BoardUser } from '../board-user/board-user.entity.ts/boardUser.entity';
+import { User } from 'src/user/entities/user.entity';
 
 const randomBytesAsync = promisify(randomBytes);
 @Injectable()
 export class BoardService {
+  private readonly expiry_duration = 3 * 60 * 1000; // 3분
   constructor(
     @InjectRepository(Board)
     private readonly boardRepository: Repository<Board>,
     @InjectRepository(VerificationCode)
     private readonly verificationCodeRepository: Repository<VerificationCode>,
+    @InjectRepository(BoardUser)
+    private readonly boardUserRepository: Repository<BoardUser>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
+
   async postBoard(boardDto: BoardDto) {
     const { name, backgroundColor, description } = boardDto;
 
@@ -66,11 +79,11 @@ export class BoardService {
     return deletedBoard;
   }
 
-
+  // 멤버 초대
   async inviteMember(invitationDto: InvitationDto) {
-    const {memberEmail} = invitationDto
-    const verificationCode = await this.createVerificationCode(memberEmail)
-    
+    const { memberEmail } = invitationDto;
+    const verificationCode = await this.createVerificationCode(memberEmail);
+
     const email = {
       service: 'gmail',
       auth: {
@@ -88,33 +101,64 @@ export class BoardService {
 
     await this.sendEmail(email, content);
 
-    return memberEmail
+    return memberEmail;
   }
 
+  // 이메일 전송
   async sendEmail(email: object, data: object) {
-    try {
-      const transporter = nodemailer.createTransport(email);
-      
-      const info = await transporter.sendMail(data);
-      
-      console.log(info);
-      return info.response;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    nodemailer.createTransport(email).sendMail(data, function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(info);
+        return info.response;
+      }
+    });
   }
 
-  async createVerificationCode(memberEmail:string) {
+  // 인증 코드 생성 및 DB 저장
+  async createVerificationCode(memberEmail: string) {
     const verificationCode = (await randomBytesAsync(6)).toString('hex');
 
     const expiry = new Date();
+    expiry.setTime(expiry.getTime() + this.expiry_duration);
+
     await this.verificationCodeRepository.save({
       email: memberEmail,
       code: verificationCode,
-      expiry
-    })
+      expiry,
+    });
 
-    return verificationCode
+    return verificationCode;
+  }
+
+  // 인증 코드 확인
+  async verifyCode(email, code, boardId) {
+    const savedCode = await this.verificationCodeRepository.findOne({
+      where: { code },
+    });
+    console.log(1);
+    if (!savedCode) {
+      throw new NotFoundException('인증 코드가 존재하지 않습니다.');
+    }
+    console.log(2);
+    if (Date.now() > savedCode.expiry.getTime()) {
+      await this.verificationCodeRepository.delete({ email });
+      throw new BadRequestException('인증 시간이 초과되었습니다.');
+    }
+    console.log(3);
+    if (savedCode.code === code) {
+      // board-user에 userId와 boardId 집어넣기
+      const user = await this.userRepository.findOne({ where: { email } });
+      console.log(user);
+      const userId = user.id;
+      const boardUser = await this.boardUserRepository.save({
+        userId,
+        boardId,
+      });
+      console.log(4);
+      //boardUser row값 보내기;
+      return boardUser;
+    }
   }
 }

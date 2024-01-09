@@ -10,6 +10,7 @@ import { BoardModule } from './board/board.module';
 import { CardsModule } from './cards/cards.module';
 import { CommentsModule } from './comments/comments.module';
 import { ColumnsModule } from './columns/columns.module';
+import { BoardUserService } from './board-user/board-user.service';
 
 @Module({
   imports: [
@@ -25,5 +26,6 @@ import { ColumnsModule } from './columns/columns.module';
     ColumnsModule,
     BoardModule,
   ],
+  providers: [BoardUserService],
 })
 export class AppModule {}
