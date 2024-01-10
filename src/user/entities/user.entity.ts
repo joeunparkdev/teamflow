@@ -43,7 +43,7 @@ export class User {
    * 이메일
    * @example "example@example.com"
    */
-  @Factory((faker) => faker.internet.email())
+  @Factory((faker) => faker.lorem.words(1)+"@"+faker.lorem.words(1)+".com",)
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })

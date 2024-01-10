@@ -178,9 +178,9 @@ export class CardsService {
   
   private async verifyColumnById(columnId:number){
    
-    if (isNaN(columnId) || !Number.isInteger(columnId)) {
-      throw new BadRequestException('올바르지 않은 컬럼 식별자입니다.');
-  }
+  //   if (isNaN(columnId) || !Number.isInteger(columnId)) {
+  //     throw new BadRequestException('올바르지 않은 컬럼 식별자입니다.');
+  // }
 
     const one_column=await this.columnsRepository.findOne({
       where:{id:columnId},
