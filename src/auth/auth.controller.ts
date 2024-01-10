@@ -34,25 +34,6 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
- /**
-   * 카카오로그인
-   * @Body
-   * @returns
-   */
-  // @Post('/kakao-login')
-  // async handleKakaoLogin(@Body() data: any) {
-  //   // Call your authentication function based on the received data
-  //   const userType = data.userType;
-  //   const redirectUri = data.redirectUri;
-  //   const result = await this.authService.handleKakaoLogin(userType, redirectUri);
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'Kakao login handled successfully',
-  //     data: result,
-  //   };
-  // }
-
   /**
    * 회원가입
    * @param signUpDto
