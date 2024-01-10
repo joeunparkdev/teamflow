@@ -187,10 +187,12 @@ export class BoardController {
   async checkMember(@Body() codeDto: CodeDto, @Request() req) {
     try {
       const { email, verificationCode, boardId } = codeDto;
+      const userId = req.user.id;
       const result = await this.boardService.verifyCode(
         email,
         verificationCode,
         boardId,
+        userId,
       );
 
       return {
