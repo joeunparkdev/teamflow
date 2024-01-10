@@ -34,16 +34,13 @@ export class Cards {
   @Column({ type: 'varchar', nullable: true })
   deadline: Date;
 
-  @Factory((faker) => faker.datatype.array(faker.number.int()))
-  @Column({ type: 'simple-array', nullable: true })
-  assignedUserId: number[];
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
+  @Column({ nullable: true })
+  assignedUserId: number;
 
   @Factory((faker) => faker.number.float())
   @Column({ type: 'float', nullable: true })
   orderNum: number;
-
-  // @Column({ type: 'varchar', nullable: false })
-  // status: string;
 
   @Factory((faker) => faker.number.bigInt())
   @Column({ type: 'bigint', nullable: true })

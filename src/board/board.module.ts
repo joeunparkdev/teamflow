@@ -4,12 +4,12 @@ import { BoardService } from './board.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
 import { VerificationCode } from './entities/verificationCode.entity';
-import { EmailVerification } from 'src/email/entities/email.entity';
-import { AuthController } from 'src/auth/auth.controller';
-import { EmailModule } from 'src/email/email.module';
-import { BoardUser } from '../board-user/entities/boardUser.entity';
-import { User } from 'src/user/entities/user.entity';
-import { AuthModule } from 'src/auth/auth.module';
+import { EmailVerification } from '../email/entities/email.entity';
+import { AuthController } from '../auth/auth.controller';
+import { EmailModule } from '../email/email.module';
+import { BoardUser } from '../board-user/entities/board-user.entity';
+import { User } from '../user/entities/user.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [

@@ -67,11 +67,7 @@ export class EmailService {
       }
     }
 
-<<<<<<< HEAD
     // 새로운 코드 생성
-=======
-    //매번 새로운 코드 생성
->>>>>>> 8d6355cdd369281453a2b89e24b7115c538135f0
     verificationCode = (await randomBytesAsync(6)).toString('hex');
     expiry = new Date();
     expiry.setTime(expiry.getTime() + this.expiry_duration);
@@ -93,7 +89,6 @@ export class EmailService {
   async sendVerificationEmail(
     email: string,
   ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
-<<<<<<< HEAD
     try {
       // 이메일에 대한 기존 인증 정보 확인
       const existingVerification =
@@ -150,50 +145,9 @@ export class EmailService {
       // 오류가 발생한 경우 적절히 처리
       console.error('오류:', error);
       throw error;
-=======
-    // 이미 존재하는 코드로 대체
+    }
 
-    const existingCode = await this.emailVerificationRepository.findOne({
-      where: { email },
-    });
     
-    if (existingCode) {
-      return {
-        code: existingCode.code,
-        expiry: existingCode.expiry,
-      };
-    }
-    const { code, expiry } = await this.generateVerificationCode(email);
-    console.log(code);
-    if (!code) {
-      throw new InternalServerErrorException('인증코드 생성에 실패했습니다.');
-    }
-
-    const subject = '이메일 인증 번호';
-    const remainingTime = Math.max(
-      0,
-      Math.ceil((expiry.getTime() - Date.now()) / 1000),
-    );
-    const mailOptions = {
-      from: process.env.EMAIL_USER, // 발신자 이메일
-      to: email,
-      subject: subject,
-      text: code,
-    };
-
-    try {
-      const info = await this.transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error('Error sending email:', error);
->>>>>>> 8d6355cdd369281453a2b89e24b7115c538135f0
-    }
-
-    await this.emailVerificationRepository.save({
-      email,
-      code,
-      expiry,
-    });
-    return { code, expiry, remainingTime };
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {

@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Factory } from 'nestjs-seeder';
 import { User } from '../../user/entities/user.entity';
-import { BoardUser } from '@/board-user/entities/boardUser.entity';
+import { BoardUser } from '../../board-user/entities/board-user.entity';
 
 @Entity({
   name: 'boards',

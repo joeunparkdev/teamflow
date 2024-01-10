@@ -128,12 +128,7 @@ export class AuthController {
       };
     }
 
-<<<<<<< HEAD
-    const verificationCode =
-      await this.emailService.generateVerificationCode(email);
-=======
     const emailSent = await this.emailService.sendVerificationEmail(email);
->>>>>>> 8d6355cdd369281453a2b89e24b7115c538135f0
 
     if (!emailSent) {
       return {
@@ -184,45 +179,6 @@ export class AuthController {
     };
   }
 
-<<<<<<< HEAD
-  /**
-   * 이메일 인증 (비밀번호 재설정시)
-   * @param passwordResetUserDto - 사용자 이메일 및 인증 관련 정보를 담은 DTO
-   * @returns 인증 번호를 이메일로 전송한 결과 메시지
-   */
-  @HttpCode(HttpStatus.OK)
-  @Post('/send-password-reset-email')
-  async sendPasswordResetEmail(
-    @Body() passwordResetUserDto: PasswordResetUserDto,
-  ) {
-    const { email } = passwordResetUserDto;
-    const verificationCode =
-      await this.emailService.generateVerificationCode(email);
-
-    if (!verificationCode) {
-      return {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: '인증 코드 생성에 실패했습니다.',
-      };
-    }
-
-    const emailSent = await this.emailService.sendVerificationEmail(email);
-
-    if (!emailSent) {
-      return {
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: '이메일 전송에 실패했습니다.',
-      };
-    }
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: '이메일 인증 코드를 전송했습니다.',
-    };
-  }
-
-=======
->>>>>>> 8d6355cdd369281453a2b89e24b7115c538135f0
   /**
    * 회원가입시 인증 번호 검증
    * @param verifyCodeDto - 사용자 이메일 및 인증 번호 비교

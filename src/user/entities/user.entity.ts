@@ -24,6 +24,7 @@ import { UserRole } from '../types/user-role.type';
 import { Factory } from 'nestjs-seeder';
 import { hashPassword } from '../../helpers/password.helper';
 import { Board } from '../../board/entities/board.entity';
+import { BoardUser } from '../../board-user/entities/board-user.entity';
 
 @Entity('users')
 export class User {

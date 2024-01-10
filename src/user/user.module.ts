@@ -7,9 +7,10 @@ import { AuthModule } from '../auth/auth.module';
 import { Cards } from '../cards/entities/cards.entity';
 import { Comments } from '../comments/entities/comments.entity';
 import { Columns } from '../columns/entities/columns.entity';
+import { BoardUser } from '@/board-user/entities/board-user.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Cards, Comments, Columns]),
+    TypeOrmModule.forFeature([User, Cards, Comments, Columns,BoardUser]),
     AuthModule,
   ],
   controllers: [UserController],

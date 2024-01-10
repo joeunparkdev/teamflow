@@ -14,9 +14,9 @@ import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitationDto } from './dto/invitation.dto';
 import { CodeDto } from './dto/code.dto';
-import { VerifyCodeDto } from 'src/auth/dtos/verify-code.dto';
-import { EmailService } from 'src/email/email.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { VerifyCodeDto } from '../auth/dtos/verify-code.dto';
+import { EmailService } from '../email/email.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('board')
 export class BoardController {

@@ -16,9 +16,9 @@ import { VerificationCode } from './entities/verificationCode.entity';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { CodeDto } from './dto/code.dto';
-import { EmailVerification } from 'src/email/entities/email.entity';
-import { BoardUser } from 'src/board-user/entities/boardUser.entity';
-import { User } from 'src/user/entities/user.entity';
+import { EmailVerification } from '../email/entities/email.entity';
+import { BoardUser } from '../board-user/entities/board-user.entity';
+import { User } from '../user/entities/user.entity';
 
 const randomBytesAsync = promisify(randomBytes);
 @Injectable()
