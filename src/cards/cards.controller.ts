@@ -11,9 +11,7 @@ import {
   Query,
   Req,
   Request,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CardsDto } from './dto/cards.dto';
@@ -21,8 +19,6 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { createCommentDto } from './dto/create-comments.dto';
 import { UpdateCommentsDto } from './dto/update-comments.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
-import * as mime from 'mime-types';
 
 @ApiTags('카드')
 @ApiBearerAuth()
@@ -118,18 +114,5 @@ export class CardsController {
     @Query('deadLine') deadline: Date,
   ) {
     return this.cardsService.updateDeadline(cardId, req.user.id, deadline);
-  }
-
-  @Post('file')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile()
-    file: Express.Multer.File,
-  ) {
-    console.log(file); // null, undefined
-    const fileName = `${new Date().toISOString()}.${mime.extension(
-      file.mimetype,
-    )}`;
-    return await this.cardsService.upload(file, fileName);
   }
 }

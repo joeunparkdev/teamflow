@@ -14,20 +14,9 @@ import { createCommentDto } from './dto/create-comments.dto';
 import { Comments } from './entities/comments.entity';
 import { UpdateCommentsDto } from './dto/update-comments.dto';
 import { UserService } from '../user/user.service';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
 @Injectable()
 export class CardsService {
-  private bucket = process.env.BUCKET;
-  private region = process.env.AWS_S3_REGION;
-  private readonly s3Client = new S3Client({
-    region: process.env.AWS_S3_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_S3_KEY,
-      secretAccessKey: process.env.AWS_S3_SECRET_KEY,
-    },
-  });
-
   constructor(
     @InjectRepository(Cards)
     private cardsRepository: Repository<Cards>,
@@ -188,15 +177,7 @@ export class CardsService {
   }
 
   async updateDeadline(cardId: number, userId: number, deadline: Date) {
-    const card = await this.getCard(cardId);
-    const assignedUserIds = card.assignedUserId.map(Number);
-    // assignedUserIds => [ '1', '2' ].map(Number) => [ 1, 2 ]
-    console.log(assignedUserIds);
-    // array.includes(item);
-    if (!assignedUserIds.includes(userId)) {
-      throw new UnauthorizedException('할당되지 않은 유저입니다.');
-    }
-
+    await this.verifyAssignedUser(cardId, userId);
     const user = await this.userService.findOneById(userId);
     if (!user) {
       throw new BadRequestException('마감일을 수정할 수 있는 권한이 없습니다.');
@@ -204,20 +185,23 @@ export class CardsService {
     return this.cardsRepository.update(cardId, { deadline });
   }
 
-  async upload(file: Express.Multer.File, fileName: string) {
-    try {
-      // console.log(file);
-      const uploadResult = await this.s3Client.send(
-        new PutObjectCommand({
-          Bucket: process.env.BUCKET,
-          Key: fileName,
-          Body: file.buffer,
-        }),
-      );
-      // console.log(uploadResult);
-      return { uploadResult };
-    } catch (error) {
-      console.log({ error });
+  // cardId의 할당된 사용자인지 여부 확인
+  async verifyAssignedUser(cardId: number, userId: number) {
+    // cardId를 통해 card 객체 반환
+    const card = await this.getCard(cardId);
+    // card 객체가 존재하지 않는 경우 예외 메시지 출력
+    if (!card) {
+      throw new BadRequestException('카드가 존재하지 않습니다.');
+    }
+
+    // assignedUserIds.map(Number) => [ '1', '2' ].map(Number) => [ 1, 2 ]
+    // .map(Number) 문자형 배열을 숫자형 배열로 형 변환
+    const assignedUserIds = card.assignedUserId.map(Number);
+
+    // array.includes(item);
+    // 할당된 사용자가 아닌 경우 예외 메시지 출력
+    if (!assignedUserIds.includes(userId)) {
+      throw new UnauthorizedException('할당되지 않은 유저입니다.');
     }
   }
 }
