@@ -29,10 +29,10 @@ seeder({
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       //  autoLoadEntities: true,
-      entities: [User,Board, BoardUser],
+      entities: [User, Cards, Comments, Columns, Board, BoardUser],
       synchronize: process.env.DB_SYNC === 'true',
     }),
 
-    TypeOrmModule.forFeature([User,Board, BoardUser]),
+    TypeOrmModule.forFeature([User,Board, BoardUser, Columns, Cards, Comments]),
   ],
 }).run([UserSeed,BoardSeed,BoardUserSeed]);
