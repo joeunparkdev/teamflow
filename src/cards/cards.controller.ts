@@ -27,17 +27,26 @@ import { number } from 'joi';
 @Controller('/column/:columnId/cards')
 export class CardsController {
   constructor(private cardsService: CardsService) {}
-
+ /**
+   * 전체 카드 가져오기
+   * @param columnId
+   * @returns
+   */
   @Get()
   async getAllCards(@Param('columnId') columnId: number) {
     return await this.cardsService.getAllCards(columnId);
   }
 
+   /**
+   * 특정 카드 가져오기
+   * @param columnId
+   * @param cardId
+   * @returns
+   */
   @Get(':cardId')
-  async getCard(@Param('cardId') cardId: number) {
+  async getCard(@Param("columnId") columnId:number,@Param('cardId') cardId: number) {
     return await this.cardsService.getCard(cardId);
   }
-
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -59,6 +68,14 @@ export class CardsController {
     };
   }
 
+   /**
+   * 카드 수정
+   * @param columnId
+   * @param cardId
+   * @body updateCardsDto
+   * @req req
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Put(':cardId')
@@ -78,6 +95,13 @@ export class CardsController {
     return updated_card;
   }
 
+     /**
+   * 카드 삭제
+   * @param columnId
+   * @param cardId
+   * @req req
+   * @returns
+   */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':cardId')

@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Factory } from 'nestjs-seeder';
 import { User } from '../../user/entities/user.entity';
+import { BoardUser } from '@/board-user/entities/boardUser.entity';
 
 @Entity({
   name: 'boards',
@@ -32,13 +33,16 @@ export class Board {
   @Column({ type: 'text', nullable: false }) //mysql 타입은 text
   description: string; // typescript 에서는 string
 
-  @OneToMany(() => Columns, (column) => column.board)
+  @Column({ type: 'int', nullable: false })
+  creator: number;
+
+  @OneToMany(() => Columns, (column) => column.board, { cascade: true })
   columns: Columns[];
 
-  @ManyToOne(() => User, (user) => user.boards)
-  creator: User;
+  @OneToMany(() => BoardUser, (boardUser) => boardUser.board, { cascade: true })
+  boardUsers: BoardUser[];
 
-  // @ManyToMany(() => User, (users) => users.boards)
+   // @ManyToMany(() => User, (users) => users.boards)
   // members: User[];
 
   @CreateDateColumn({ type: 'datetime', nullable: false })

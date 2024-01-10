@@ -12,6 +12,7 @@ import { User } from '../user/entities/user.entity';
 import { Cards } from '../cards/entities/cards.entity';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { LexoRank } from 'lexorank';
+import { UserService } from 'src/user/user.service';
 //import { col } from 'sequelize';
 
 @Injectable()
@@ -28,7 +29,7 @@ export class ColumnsService {
       where: { boardId },
       select: ['id', 'name', 'position'],
       order: { position: 'ASC' },
-      relations: { cards: true },
+      relations: { cards: {comments:true} },
     });
 
     return many_column;
@@ -39,7 +40,7 @@ export class ColumnsService {
       where: { boardId },
       select: ['id', 'name', 'position'],
       order: { position: 'ASC' },
-      relations: { cards: true },
+      relations: { cards: {comments:true} },
     });
     return one_column;
   }
@@ -60,6 +61,11 @@ export class ColumnsService {
     columnsDto: ColumnsDto,
     userId: number,
   ): Promise<Columns> {
+    const one_user = await this.userRepository.findOneBy({ id: userId });
+    if (_.isNil(one_user)) {
+      throw new NotFoundException('할당 하려는 사용자는 존재하지 않습니다.');
+    }
+
     const existingColumn = await this.columnsRepository.findOne({
       where: { boardId, name: columnsDto.name },
     });
@@ -105,6 +111,11 @@ export class ColumnsService {
     userId: number,
   ): Promise<Columns> {
     try {
+      const one_user = await this.userRepository.findOneBy({ id: userId });
+      if (_.isNil(one_user)) {
+        throw new NotFoundException('할당 하려는 사용자는 존재하지 않습니다.');
+      }
+
       const one_column = await this.verifyColumnById(columnId, {
         where: { boardId },
       });
@@ -128,6 +139,10 @@ export class ColumnsService {
     columnId: number,
     userId: number,
   ): Promise<void> {
+    const one_user = await this.userRepository.findOneBy({ id: userId });
+    if (_.isNil(one_user)) {
+      throw new NotFoundException('할당 하려는 사용자는 존재하지 않습니다.');
+    }
     const one_column = await this.verifyColumnById(columnId, {
       where: { boardId },
     });
@@ -163,6 +178,11 @@ export class ColumnsService {
     columnsMoveDto: ColumnsMoveDto,
     userId: number,
   ) {
+    const one_user = await this.userRepository.findOneBy({ id: userId });
+    if (_.isNil(one_user)) {
+      throw new NotFoundException('할당 하려는 사용자는 존재하지 않습니다.');
+    }
+    
     const columnToMove = await this.verifyColumnById(columnId, {
       where: { boardId },
     });

@@ -36,6 +36,8 @@ export class User {
   @OneToMany(() => Comments, (comment) => comment.user)
   comments: Comments[];
 
+  @OneToMany(() => BoardUser, (boardUser) => boardUser.user)
+  boardUsers: BoardUser[];
   /**
    * 이메일
    * @example "example@example.com"
