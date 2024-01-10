@@ -15,6 +15,7 @@ import { ColumnsController } from './columns/columns.controller';
 import { CommentsModule } from './comments/comments.module';
 import { ColumnsModule } from './columns/columns.module';
 import { BoardUserService } from './board-user/board-user.service';
+import { BoardUserModule } from './board-user/board-user.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { BoardUserService } from './board-user/board-user.service';
     ColumnsModule,
     BoardModule,
     CommentsModule,
+    BoardUserModule,
   ],
-  providers: [BoardUserService],
 })
 export class AppModule {}

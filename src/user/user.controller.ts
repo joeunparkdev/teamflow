@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { UpdateMyInfoDto } from 'src/auth/dtos/update-my-info.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateMyInfoDto } from '../auth/dtos/update-my-info.dto';
 
 @ApiTags('사용자')
 @Controller('users')

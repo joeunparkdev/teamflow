@@ -1,20 +1,3 @@
-/*
-import _ from 'lodash';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Cards } from './entities/cards.entity';
-import { CardsDto } from './dtos/cards.dto';
-import { User } from 'src/user/entities/user.entity';
-import { CreateCommentDto } from '../comments/dtos/create-comments.dto';
-import { Comments } from '../comments/entities/comments.entity';
-import { UpdateCommentsDto } from '../comments/dtos/update-comments.dto';
-import { UserService } from '../user/user.service';
-*/
 
 import _ from 'lodash';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
@@ -22,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cards } from './entities/cards.entity';
 import { CardsDto } from './dtos/cards.dto';
-import { User } from 'src/user/entities/user.entity';
-import { Columns } from 'src/columns/entities/columns.entity';
+import { User } from '../user/entities/user.entity';
+import { Columns } from '../columns/entities/columns.entity';
 import { UpdateCardsDto } from './dtos/update-cards.dto';
 
 @Injectable()
@@ -47,7 +30,27 @@ export class CardsService {
 
   async getCard(cardId: number) {
     const one_card = await this.verifyCardById(cardId);
-    return one_card;
+   
+    const assignedUser= await this.userRepository.findOneBy({id:one_card.assignedUserId});
+
+    const column_list= await this.columnsRepository.findOneBy({id:one_card.columnId})
+    
+    return {
+      id:one_card.id,
+      name:one_card.name,
+      describe:one_card.description,
+      color:one_card.color,
+      deadline:one_card.deadline,
+      assignedUserId:one_card.assignedUserId,
+      assignedUserName:assignedUser.name,
+      orderNum:one_card.orderNum,
+      status:column_list.name,
+      createUserId:one_card.createUserId,
+      columnId:one_card.columnId,
+      createdAt:one_card.createdAt,
+      updatedAt:one_card.updatedAt,
+      comments:one_card.comments,
+    };
   }
 
   async createCard(cardsDto:CardsDto,user_id:number,columnId:number){
@@ -64,9 +67,7 @@ export class CardsService {
       cards_num =Number(many_card[many_card.length-1].orderNum)+1:
       cards_num =1;
 
-    for(let i of cardsDto.assignedUserId){
-       await this.verifyUserById(i);
-    }
+      await this.verifyUserById(cardsDto.assignedUserId);
 
     const column= await this.verifyColumnById(columnId);
     
@@ -88,9 +89,7 @@ export class CardsService {
     //이거는 같은 컬럼에서의 이동
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
-    //const column_by_name = await this.verifyColumnByName(updateCardsDto.status);//다른컬럼으로 이동시 업데이트 상태로 columnId를 받는다
     
-    //const column_id =column_by_name[0].id;
 
     const many_card =await this.cardsRepository.find({
       where:{columnId:updateCardsDto.moveToColumnId}, 
@@ -158,7 +157,11 @@ export class CardsService {
 }
 
   private async verifyCardById(cardId: number) {
-    const one_card = await this.cardsRepository.findOneBy({ id: cardId });
+    const one_card = await this.cardsRepository.findOne({
+      where:{ id: cardId}, 
+      relations: { comments: true },
+      order: { createdAt: 'ASC' },
+    });
     if (_.isNil(one_card)) {
       throw new NotFoundException('존재하지 않는 카드 입니다.');
     }
@@ -217,96 +220,5 @@ export class CardsService {
     return many_card;
   }
 
-/*
-  private async verifyStatus(column_name:string[],status:string){
-    const check_status= await column_name.find((e)=>{e==status});
-    if(!check_status){
-      throw new NotFoundException("해당하는 이름의 칼럼이 존재하지 않습니다")
-    }
-  }
-
-
-
-
-  async createComment(
-    userId: number,
-    cardId: number,
-    commentData: CreateCommentDto,
-  ) {
-    const user = await this.userService.findOneById(userId);
-    if (!user) {
-      throw new BadRequestException('댓글을 달 수 있는 권한이 없습니다');
-    }
-    const card = await this.getCard(cardId);
-    if (!card) {
-      throw new BadRequestException('댓글을 달수있는 카드가 없습니다');
-    }
-    await this.commentsRepository.save(
-      this.commentsRepository.create({
-        user: {
-          id: userId,
-        },
-        card: {
-          id: cardId,
-        },
-        comment: commentData.comment,
-      }), // create() => Comments Entity 객체
-    ); // save() => Comments Entity 객체를 INSERT
-
-    // await this.cardsService.
-    // array = [1번 요소, 2번 요소, 3번 요소]
-    // array.map(item => {}); => 1번, 2번, 3번 요소가 순서 상관없이 동시에 시작(비동기)
-    // for (const item of array) { }
-  }
-
-  getCommentsByCardId(cardId: number): Promise<Comments[]> {
-    return this.commentsRepository
-      .createQueryBuilder('comment')
-      .select('comment.id', 'id')
-      .addSelect('user.id', 'userId')
-      .addSelect('card.id', 'cardId')
-      .addSelect('comments.comment', 'comment')
-      .innerJoin('comments.user', 'user')
-      .innerJoin('comment.card', 'card')
-      .where('card.id = :id', {
-        id: cardId,
-      })
-      .getRawMany();
-  }
-
-  // id, user_id, card_id, comments
-  // select * from comments; => comments 테이블에 있는 모든 데이터와 열(id, user_id, card_id, comments)을 선택
-  // select id, user_id from comments; comments 테이블에 있는 모든 데이터와 열(id, user_id)을 선택
-  // id => select(id)
-  // user_id => addSelect(userId)
-
-  async updateOneComment(
-    userId: number,
-    commentId: number,
-    updateData: UpdateCommentsDto,
-  ) {
-    const user = await this.userService.findOneById(userId);
-    if (!user) {
-      throw new BadRequestException('댓글을 수정할수있는 권한이 없습니다.');
-    }
-    return this.commentsRepository.update(
-      {
-        id: commentId,
-      },
-      { comment: updateData.comment },
-    );
-  }
-
-  async deleteOneComment(cardId: number, commentId: number, userId: number) {
-    const user = await this.userService.findOneById(userId);
-    if (!user) {
-      throw new BadRequestException('댓글을 삭제할 수 있는 권한이 없습니다.');
-    }
-    const card = await this.getCard(cardId);
-    if (!card) {
-      throw new BadRequestException('댓글을 삭제할 수 있는 카드가 없습니다');
-    }
-    return this.commentsRepository.delete({ id: commentId });
-  }*/
 
 }

@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmailVerification } from '../email/entities/email.entity';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 
 const randomBytesAsync = promisify(randomBytes);
 
@@ -67,12 +67,12 @@ export class EmailService {
       }
     }
 
-    //매번 새로운 코드 생성
+    // 새로운 코드 생성
     verificationCode = (await randomBytesAsync(6)).toString('hex');
     expiry = new Date();
     expiry.setTime(expiry.getTime() + this.expiry_duration);
 
-    // 데이터베이스에 저장
+    // 데이터베이스에 저장 또는 업데이트
     await this.emailVerificationRepository.save({
       email,
       code: verificationCode,
@@ -89,48 +89,65 @@ export class EmailService {
   async sendVerificationEmail(
     email: string,
   ): Promise<{ code: string; expiry: Date; remainingTime?: number }> {
-    // 이미 존재하는 코드로 대체
-
-    const existingCode = await this.emailVerificationRepository.findOne({
-      where: { email },
-    });
-    
-    if (existingCode) {
-      return {
-        code: existingCode.code,
-        expiry: existingCode.expiry,
-      };
-    }
-    const { code, expiry } = await this.generateVerificationCode(email);
-    console.log(code);
-    if (!code) {
-      throw new InternalServerErrorException('인증코드 생성에 실패했습니다.');
-    }
-
-    const subject = '이메일 인증 번호';
-    const remainingTime = Math.max(
-      0,
-      Math.ceil((expiry.getTime() - Date.now()) / 1000),
-    );
-    const mailOptions = {
-      from: process.env.EMAIL_USER, // 발신자 이메일
-      to: email,
-      subject: subject,
-      text: code,
-    };
-
     try {
-      const info = await this.transporter.sendMail(mailOptions);
+      // 이메일에 대한 기존 인증 정보 확인
+      const existingVerification =
+        await this.emailVerificationRepository.findOne({
+          where: { email },
+        });
+
+      let code: string;
+      let expiry: Date;
+      console.log(existingVerification);
+      if (existingVerification) {
+        // 이미 존재하는 인증 정보가 있을 경우 해당 코드와 만료 일자 재사용
+        code = existingVerification.code;
+        expiry = existingVerification.expiry;
+      } else {
+        // 존재하지 않는 경우 새로운 인증 코드 및 만료 일자 생성
+        const { code: newCode, expiry: newExpiry } =
+          await this.generateVerificationCode(email);
+        code = newCode;
+        expiry = newExpiry;
+
+        // 새로운 인증 정보 저장
+        await this.emailVerificationRepository.save({
+          email,
+          code,
+          expiry,
+        });
+      }
+
+      const subject = '이메일 인증 번호';
+      const remainingTime = Math.max(
+        0,
+        Math.ceil((expiry.getTime() - Date.now()) / 1000),
+      );
+
+      // 이메일 전송 옵션 설정
+      const mailOptions = {
+        from: process.env.EMAIL_USER, // 발신자 이메일
+        to: email,
+        subject: subject,
+        text: code,
+      };
+
+      try {
+        // 이메일 전송 시도
+        const info = await this.transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.error('이메일 전송 중 오류 발생:', error);
+      }
+
+      // 생성된 코드, 만료 일자, 남은 시간 반환
+      return { code, expiry, remainingTime };
     } catch (error) {
-      console.error('Error sending email:', error);
+      // 오류가 발생한 경우 적절히 처리
+      console.error('오류:', error);
+      throw error;
     }
 
-    await this.emailVerificationRepository.save({
-      email,
-      code,
-      expiry,
-    });
-    return { code, expiry, remainingTime };
+    
   }
 
   async verifyCode(email: string, code: string): Promise<boolean> {

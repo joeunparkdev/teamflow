@@ -8,11 +8,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOneOptions, QueryFailedError } from 'typeorm';
 import { Columns } from './entities/columns.entity';
 import { ColumnsDto } from './dtos/columns.dto';
-import { User } from 'src/user/entities/user.entity';
-import { Cards } from 'src/cards/entities/cards.entity';
+import { User } from '../user/entities/user.entity';
+import { Cards } from '../cards/entities/cards.entity';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { LexoRank } from 'lexorank';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 //import { col } from 'sequelize';
 
 @Injectable()
