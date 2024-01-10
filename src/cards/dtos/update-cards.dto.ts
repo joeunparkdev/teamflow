@@ -45,7 +45,13 @@ export class UpdateCardsDto {
    */
   @IsNumber()
   cardPosition: number | null;
-
-  @IsString()
-  status: string | null;
+    
+  /*
+  * 카드가 이동할 칼럼 
+  *    * @example "1"
+  */
+  @IsNumber()
+  moveToColumnId: number;
+    
 }
+
