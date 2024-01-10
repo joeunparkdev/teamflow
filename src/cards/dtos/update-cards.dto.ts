@@ -1,25 +1,57 @@
-import { IsArray, IsDate, IsHexColor, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsHexColor,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 
-export class UpdateCardsDto{
-    @IsString()
-    name:string|null;
+export class UpdateCardsDto {
+  /**
+   * 카드 이름
+   * @example "깃허브 계정 생성"
+   */
+  @IsString()
+  name: string | null;
+  /**
+   * 설명
+   * @example "구글 이메일 이용"
+   */
+  @IsString()
+  description: string | null;
+  /**
+   * 색
+   * @example "fff000"
+   */
+  @IsHexColor()
+  color: string | null;
+  /**
+   * 날짜
+   *    * @example "Tue Jan 16 2024 19:58:06 GMT+0900 (Korean Standard Time)"
+   */
+  @IsString()
+  deadline: Date | null;
 
-    @IsString()
-    description: string|null;
+  /**
+   * 유저 아이디
+   *    * @example "[1]"
+   */
+  @IsArray()
+  assignedUserId: number[] | null;
 
-    @IsHexColor()
-    color:string|null;
-
-    @IsString()
-    deadline: Date|null;
-
-    @IsArray()
-    assignedUserId:number[]|null;
+  /**
+   * 카드 이동할 위치   *    * @example "1"
+   */
+  @IsNumber()
+  cardPosition: number | null;
     
-    @IsNumber()
-    cardPosition: number|null;
-
-    @IsNumber()
-    moveToColumnId: number;
+  /*
+  * 카드가 이동할 칼럼 
+  *    * @example "1"
+  */
+  @IsNumber()
+  moveToColumnId: number;
     
 }
+
