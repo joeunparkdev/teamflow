@@ -5,15 +5,15 @@ import {
 } from '@nestjs/common';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { SignInDto } from './dtos/sign-in.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { UserService } from 'src/user/user.service';
-import { UserStatus } from 'src/enums/user-status.enum';
+import { UserService } from '../user/user.service';
+import { UserStatus } from '../enums/user-status.enum';
 import { hashPassword } from '../helpers/password.helper';
 import passport from 'passport';
 
@@ -140,18 +140,19 @@ export class AuthService {
 
   async validateUserStatus(userId: number, refreshToken: string) {
     const user = await this.validaterefreshToken(userId, refreshToken);
-  
+
     if (!user) {
       throw new UnauthorizedException();
     }
-  
+
     if (user.status === UserStatus.Inactive) {
-      throw new UnauthorizedException('계정이 잠겼습니다. 관리자에게 문의하세요.');
+      throw new UnauthorizedException(
+        '계정이 잠겼습니다. 관리자에게 문의하세요.',
+      );
     }
-  
+
     return user;
   }
-  
 
   async resetPassword(email: string, newPassword: string): Promise<void> {
     const hashedPassword = await hashPassword(newPassword);

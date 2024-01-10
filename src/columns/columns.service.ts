@@ -8,8 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOneOptions, QueryFailedError } from 'typeorm';
 import { Columns } from './entities/columns.entity';
 import { ColumnsDto } from './dtos/columns.dto';
-import { User } from 'src/user/entities/user.entity';
-import { Cards } from 'src/cards/entities/cards.entity';
+import { User } from '../user/entities/user.entity';
+import { Cards } from '../cards/entities/cards.entity';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { LexoRank } from 'lexorank';
 //import { col } from 'sequelize';
@@ -175,12 +175,11 @@ export class ColumnsService {
         where: { boardId },
       });
       const prevColumnPosition = LexoRank.parse(prevColumnToMove.position);
-      const betweenColumnPosition =
-      prevColumnPosition.genNext(); //destination
-      return await this.columnsRepository.save(
-        { id: columnId ,
-         position: betweenColumnPosition.toString() },
-      );
+      const betweenColumnPosition = prevColumnPosition.genNext(); //destination
+      return await this.columnsRepository.save({
+        id: columnId,
+        position: betweenColumnPosition.toString(),
+      });
     }
     // next값만 받을때 (맨 뒤로 움직일때)
     if (!prev) {
@@ -188,12 +187,11 @@ export class ColumnsService {
         where: { boardId },
       });
       const nextColumnPosition = LexoRank.parse(nextColumnToMove.position);
-      const betweenColumnPosition =
-      nextColumnPosition.genPrev(); //destination
-      return await this.columnsRepository.save(
-        { id: columnId ,
-          position: betweenColumnPosition.toString() },
-      );
+      const betweenColumnPosition = nextColumnPosition.genPrev(); //destination
+      return await this.columnsRepository.save({
+        id: columnId,
+        position: betweenColumnPosition.toString(),
+      });
     }
 
     // prev과 next값을 받을때
@@ -207,9 +205,9 @@ export class ColumnsService {
     const nextColumnPosition = LexoRank.parse(nextColumnToMove.position);
     const betweenColumnPosition =
       nextColumnPosition.between(prevColumnPosition); //destination
-    return await this.columnsRepository.save(
-      { id: columnId ,
-        position: betweenColumnPosition.toString() },
-    );
+    return await this.columnsRepository.save({
+      id: columnId,
+      position: betweenColumnPosition.toString(),
+    });
   }
 }

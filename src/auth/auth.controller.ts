@@ -18,11 +18,11 @@ import { SignInDto } from './dtos/sign-in.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { EmailVerifyDto } from './dtos/email-verify.dto';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from '../email/email.service';
 import { VerifyCodeDto } from './dtos/verify-code.dto';
-import { extractTokenFromHeader } from 'src/helpers/auth.helper';
+import { extractTokenFromHeader } from '../helpers/auth.helper';
 import { ResetPasswordDto } from './dtos/reset-password.dto';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { PasswordResetUserDto } from './dtos/password-reset-user.dto';
 
 @ApiTags('인증')

@@ -7,7 +7,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { UserStatus } from 'src/enums/user-status.enum';
+import { UserStatus } from '../../enums/user-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -19,6 +19,7 @@ import {
 import { Comments } from '../../comments/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
+import { Factory } from 'nestjs-seeder';
 
 @Entity('users')
 export class User {
@@ -35,6 +36,7 @@ export class User {
    * 이메일
    * @example "example@example.com"
    */
+  @Factory((faker) => faker.internet.email())
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })
@@ -44,6 +46,7 @@ export class User {
    * 비밀번호
    * @example "Ex@mp1e!!"
    */
+  @Factory((faker) => faker.internet.password())
   @IsNotEmpty({ message: '비밀번호을 입력해 주세요.' })
   @IsStrongPassword(
     {},
@@ -59,6 +62,7 @@ export class User {
    * 닉네임
    * @example "홍길동"
    */
+  @Factory((faker) => faker.internet.userName())
   @IsNotEmpty({ message: '이름을 입력해 주세요.' })
   @IsString()
   @Column()
@@ -68,6 +72,7 @@ export class User {
    * 휴대폰 번호
    * @example "010-000-0000"
    */
+
   @IsString()
   @Column({ nullable: true })
   phone: string;

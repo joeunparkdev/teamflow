@@ -2,21 +2,21 @@ import { DataFactory, Seeder } from 'nestjs-seeder';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Columns } from '../columns/entities/columns.entity';
+import { Board } from '../board/entities/board.entity';
 
 @Injectable()
 export class ColumnSeed implements Seeder {
   constructor(
-    @InjectRepository(Columns)
-    private columnsRepository: Repository<Columns>,
+    @InjectRepository(Board)
+    private boardRepository: Repository<Board>,
   ) {}
 
   seed(): Promise<any> {
-    const columns = DataFactory.createForClass(Columns).generate(50);
+    const board = DataFactory.createForClass(Board).generate(50);
 
-    return this.columnsRepository.insert(columns);
+    return this.boardRepository.insert(board);
   }
   drop(): Promise<any> {
-    return this.columnsRepository.delete({});
+    return this.boardRepository.delete({});
   }
 }
