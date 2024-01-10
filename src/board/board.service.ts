@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitationDto } from './dto/invitation.dto';
 import nodemailer from 'nodemailer';
-import { VerificationCode } from './entities/verificationCode.entity';
+import { Invitation } from './entities/invitation.entity';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { CodeDto } from './dto/code.dto';
@@ -27,8 +27,8 @@ export class BoardService {
   constructor(
     @InjectRepository(Board)
     private readonly boardRepository: Repository<Board>,
-    @InjectRepository(VerificationCode)
-    private readonly verificationCodeRepository: Repository<VerificationCode>,
+    @InjectRepository(Invitation)
+    private readonly invitationRepository: Repository<Invitation>,
     @InjectRepository(BoardUser)
     private readonly boardUserRepository: Repository<BoardUser>,
     @InjectRepository(User)
@@ -112,9 +112,27 @@ export class BoardService {
   }
 
   // 멤버 초대
-  async inviteMember(invitationDto: InvitationDto) {
-    const { memberEmail } = invitationDto;
-    const verificationCode = await this.createVerificationCode(memberEmail);
+  async inviteMember(invitationDto: InvitationDto, userId) {
+    const { memberEmail, boardId } = invitationDto;
+    const board = await this.boardRepository.findOne({
+      where: { id: boardId },
+    });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+    }
+
+    //user가 creator인지 확인
+    const checkCreator = await this.boardRepository.findOne({
+      where: { creator: userId, id: boardId },
+    });
+    if (!checkCreator) {
+      throw new ForbiddenException('보드 생성자만 초대를 할 수 있습니다.');
+    }
+
+    const verificationCode = await this.createVerificationCode(
+      memberEmail,
+      boardId,
+    );
 
     const email = {
       service: 'gmail',
@@ -149,24 +167,23 @@ export class BoardService {
   }
 
   // 인증 코드 생성 및 DB 저장
-  async createVerificationCode(memberEmail: string) {
+  async createVerificationCode(memberEmail: string, boardId: number) {
     const verificationCode = (await randomBytesAsync(6)).toString('hex');
 
     const expiry = new Date();
     expiry.setTime(expiry.getTime() + this.expiry_duration);
 
-    await this.verificationCodeRepository.save({
+    await this.invitationRepository.save({
       email: memberEmail,
       code: verificationCode,
       expiry,
+      boardId,
     });
-
-    return verificationCode;
   }
 
   // 인증 코드 확인
   async verifyCode(email, code, boardId) {
-    const savedCode = await this.verificationCodeRepository.findOne({
+    const savedCode = await this.invitationRepository.findOne({
       where: { code },
     });
 
@@ -181,12 +198,21 @@ export class BoardService {
       );
     }
     if (!savedCode) {
-      throw new NotFoundException('인증 코드가 존재하지 않습니다.');
+      throw new NotFoundException('인증 코드가 발송되지 않았습니다.');
     }
     if (Date.now() > savedCode.expiry.getTime()) {
-      await this.verificationCodeRepository.delete({ email });
+      await this.invitationRepository.delete({ email });
       throw new BadRequestException('인증 시간이 초과되었습니다.');
     }
+
+    const checkInvitedBoard = await this.invitationRepository.findOne({
+      where: { boardId, email },
+    });
+
+    if (!checkInvitedBoard) {
+      throw new ForbiddenException('초대받지 않은 보드입니다.');
+    }
+
     if (savedCode.code === code) {
       // board-user에 userId와 boardId 집어넣기
       const userId = user.id;

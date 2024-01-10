@@ -122,9 +122,13 @@ export class BoardController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/invite')
-  async inviteMember(@Body() invitationDto: InvitationDto) {
+  async inviteMember(@Body() invitationDto: InvitationDto, @Request() req) {
     try {
-      const invitedMember = await this.boardService.inviteMember(invitationDto);
+      const userId = req.user.id;
+      const invitedMember = await this.boardService.inviteMember(
+        invitationDto,
+        userId,
+      );
 
       return {
         statusCode: 201,
