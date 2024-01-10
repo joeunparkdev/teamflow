@@ -12,7 +12,7 @@ export class BoardSeed implements Seeder {
   ) {}
 
   seed(): Promise<any> {
-    const board = DataFactory.createForClass(Board).generate(10);
+    const board = DataFactory.createForClass(Board).generate(50);
 
     return this.boardRepository.insert(board);
   }

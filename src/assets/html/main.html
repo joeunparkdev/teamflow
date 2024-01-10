@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/modal.css">
+    <title>메인</title>
+</head>
+<body>
+    워크 스페이스
+    <div id="boardParent"></div>
+
+    <div id="modal" class="modal-overlay" style="visibility: hidden;">
+        <div class="modal-window">
+            <div class="title" id="modal-title">
+                <h2>모달</h2>
+            </div>
+            
+            <div class="column-list" id="modal-column-list">in list </div>
+            <div class="close-area" >X</div>
+            <div class="description">Description</div>
+            <div class="content" id="modal-content">
+                카드설명
+            </div>
+            <div class="content" id="modal-deadline">완료일</div>
+            <div class="content" id="modal-assignedUser">할당유저</div>
+            <div class="comments">Comments</div>
+            <div class="content">댓글</div>
+            <div></div>
+        </div>
+    </div>
+    <script src="../js/constants.js"></script>
+    <script src="../js/main.js"></script>
+    <script src="../js/card-modal.js"></script>
+</body>
+
+</html>
