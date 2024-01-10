@@ -38,6 +38,12 @@ export class BoardService {
   async postBoard(userId, boardDto: BoardDto) {
     const { name, backgroundColor, description } = boardDto;
 
+    const existBoard = await this.boardRepository.findOne({ where: { name } });
+
+    if (existBoard) {
+      throw new BadRequestException('이미 존재하는 보드 이름입니다.');
+    }
+
     const postedBoard = await this.boardRepository.save({
       name,
       backgroundColor,
@@ -52,8 +58,11 @@ export class BoardService {
     const user = await this.boardUserRepository.findOne({
       where: { userId, boardId },
     });
+    const creator = await this.boardRepository.findOne({
+      where: { creator: userId },
+    });
 
-    if (!user) {
+    if (!user && !creator) {
       throw new ForbiddenException('보드 수정 권한이 없는 유저입니다.');
     }
 
