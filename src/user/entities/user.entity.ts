@@ -7,7 +7,6 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { ColumnStatus } from 'src/enums/columns-status.enum';
 import { UserStatus } from 'src/enums/user-status.enum';
 import {
   Column,

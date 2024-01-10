@@ -7,9 +7,9 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+import { LexoRank } from 'lexorank';
 import { Board } from 'src/board/entities/board.entity';
 import { Cards } from 'src/cards/entities/cards.entity';
-import { ColumnStatus } from 'src/enums/columns-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -21,6 +21,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRole } from '../../user/types/user-role.type';
+
 
 @Entity('columns')
 export class Columns {
@@ -47,7 +48,7 @@ export class Columns {
     },
   )
   @Column({ unique: true })
-  orderNum: number;
+  position: string;
 
   /**
    * 보드 아이디
@@ -58,15 +59,6 @@ export class Columns {
   @Column()
   boardId: number;
 
-  /**
-   * 상태
-   * @example "Todo"
-   */
-  @IsNotEmpty({ message: '보드 상태를 입력해 주세요.' })
-  @IsEnum(ColumnStatus)
-  @Column({ type: 'enum', enum: ColumnStatus, default: ColumnStatus.Todo })
-  status: ColumnStatus;
-
   @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
   @JoinColumn()
   board: Board;
@@ -75,8 +67,11 @@ export class Columns {
   @JoinColumn()
   cards: Cards[];
 
+
   @Column({ nullable: false })
   createdUserId: number;
+
+    
 
   @CreateDateColumn()
   createdAt: Date;

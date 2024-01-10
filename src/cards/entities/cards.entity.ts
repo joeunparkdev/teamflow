@@ -12,11 +12,12 @@ import {
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
 
+
 @Entity('cards')
 export class Cards {
   @PrimaryGeneratedColumn()
   id: number;
-
+  
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
@@ -30,10 +31,10 @@ export class Cards {
   deadline: Date;
 
   @Column({ type: 'simple-array', nullable: true })
-  assignedUserId: string[];
+  assignedUserId: number[];
 
-  @Column({ type: 'bigint', nullable: true })
-  orderNum: number;
+  @Column({ type: 'float', nullable: true })
+  orderNum: number; 
 
   @Column({ type: 'varchar', nullable: false })
   status: string;
@@ -42,16 +43,21 @@ export class Cards {
   createUserId: number;
 
   @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
+  @JoinColumn()
   comments: Comments[];
+
+  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "column_id", referencedColumnName: "id" })
+  columns: Columns;
+
+  @Column({type:"bigint",nullable:false})
+  columnId:number;
 
   @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' }) 
   @JoinColumn()
   user: User;
 
-  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  columns: Columns;
-
+ 
   @CreateDateColumn()
   createdAt: Date;
 
