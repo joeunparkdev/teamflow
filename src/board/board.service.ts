@@ -16,9 +16,9 @@ import { Invitation } from './entities/invitation.entity';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { CodeDto } from './dto/code.dto';
-import { EmailVerification } from 'src/email/entities/email.entity';
-import { BoardUser } from 'src/board-user/entities/boardUser.entity';
-import { User } from 'src/user/entities/user.entity';
+import { EmailVerification } from '../email/entities/email.entity';
+import { BoardUser } from '../board-user/entities/board-user.entity';
+import { User } from '../user/entities/user.entity';
 
 const randomBytesAsync = promisify(randomBytes);
 @Injectable()
@@ -173,40 +173,56 @@ export class BoardService {
     const expiry = new Date();
     expiry.setTime(expiry.getTime() + this.expiry_duration);
 
+    const invitedUser = await this.userRepository.findOne({
+      where: { email: memberEmail },
+    });
+    const userId = invitedUser.id;
     await this.invitationRepository.save({
-      email: memberEmail,
+      userId,
       code: verificationCode,
       expiry,
       boardId,
     });
+    console.log(verificationCode);
+    return verificationCode;
   }
 
   // 인증 코드 확인
-  async verifyCode(email, code, boardId) {
+  async verifyCode(email, code, boardId, userId) {
     const savedCode = await this.invitationRepository.findOne({
       where: { code },
     });
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    const invitedUser = await this.invitationRepository.findOne({
+      where: { userId },
+    });
 
-    if (!user) {
-      throw new NotFoundException('존재하지 않는 유저입니다.');
+    const savedUser = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    const invitedUserEmail = savedUser.email;
+
+    console.log({ email });
+    console.log({ invitedUserEmail });
+    if (!invitedUser) {
+      throw new NotFoundException('초대받지 않은 유저입니다.');
     }
-    if (user.email !== email) {
+    if (invitedUserEmail !== email) {
       throw new BadRequestException(
-        '입력한 이메일과 등록된 이메일이 다릅니다.',
+        '입력한 이메일과 초대받은 이메일이 다릅니다.',
       );
     }
+
     if (!savedCode) {
       throw new NotFoundException('인증 코드가 발송되지 않았습니다.');
     }
     if (Date.now() > savedCode.expiry.getTime()) {
-      await this.invitationRepository.delete({ email });
+      await this.invitationRepository.delete({ userId });
       throw new BadRequestException('인증 시간이 초과되었습니다.');
     }
 
     const checkInvitedBoard = await this.invitationRepository.findOne({
-      where: { boardId, email },
+      where: { boardId, userId },
     });
 
     if (!checkInvitedBoard) {
@@ -215,7 +231,6 @@ export class BoardService {
 
     if (savedCode.code === code) {
       // board-user에 userId와 boardId 집어넣기
-      const userId = user.id;
       const boardUser = await this.boardUserRepository.save({
         userId,
         boardId,

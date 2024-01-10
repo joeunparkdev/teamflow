@@ -8,8 +8,9 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { LexoRank } from 'lexorank';
-import { Board } from 'src/board/entities/board.entity';
-import { Cards } from 'src/cards/entities/cards.entity';
+import { Factory } from 'nestjs-seeder';
+import { Board } from '../../board/entities/board.entity';
+import { Cards } from '../../cards/entities/cards.entity';
 import {
   Column,
   CreateDateColumn,
@@ -22,7 +23,6 @@ import {
 } from 'typeorm';
 import { UserRole } from '../../user/types/user-role.type';
 
-
 @Entity('columns')
 export class Columns {
   @PrimaryGeneratedColumn()
@@ -32,6 +32,7 @@ export class Columns {
    * 컬럼 이름
    * @example "할 일"
    */
+  @Factory((faker) => faker.lorem.words(3))
   @IsNotEmpty({ message: '컬럼 이름을 입력해 주세요.' })
   @Column({ unique: true })
   name: string;
@@ -40,6 +41,7 @@ export class Columns {
    * 컬럼 순서
    * @example "0"
    */
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 100 }))
   @IsNotEmpty({ message: '컬럼 순서를 입력해 주세요.' })
   @IsNumber(
     {},
@@ -54,6 +56,7 @@ export class Columns {
    * 보드 아이디
    * @example "9"
    */
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
   @IsNotEmpty({ message: '보드 아이디를 입력해 주세요.' })
   @IsNumber()
   @Column()
@@ -63,15 +66,13 @@ export class Columns {
   @JoinColumn()
   board: Board;
 
-  @OneToMany(() => Cards, (card) => card.columns, { cascade: true })
+  @OneToMany(() => Cards, (card) => card.column)
   @JoinColumn()
   cards: Cards[];
 
-
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
   @Column({ nullable: false })
   createdUserId: number;
-
-    
 
   @CreateDateColumn()
   createdAt: Date;

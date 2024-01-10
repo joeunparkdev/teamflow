@@ -8,8 +8,8 @@ export class Invitation {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  email: string;
+  @Column({ type: 'int', nullable: false })
+  userId: number;
 
   @Column({ type: 'varchar', nullable: false })
   code: string;
