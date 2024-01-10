@@ -21,26 +21,26 @@ export class CardsDto {
    * @example "구글 이메일 이용"
    */
   @IsString()
-  description: string | null;
+  description: string ;
 
   /**
    * 색
    * @example "fff000"
    */
-  @IsHexColor()
-  color: string | null;
+  @IsString()
+  color: string ;
 
   /**
    * 날짜
    *    * @example "Tue Jan 16 2024 19:58:06 GMT+0900 (Korean Standard Time)"
    */
   @IsString()
-  deadline: Date | null;
+  deadline: string ;
 
   /**
    * 유저 아이디
    *    * @example "[1]"
    */
   @IsNumber()
-  assignedUserId: number | null;
+  assignedUserId: number ;
 }

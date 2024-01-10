@@ -13,38 +13,38 @@ export class UpdateCardsDto {
    * @example "깃허브 계정 생성"
    */
   @IsString()
-  name: string | null;
+  name: string ;
   /**
    * 설명
    * @example "구글 이메일 이용"
    */
   @IsString()
-  description: string | null;
+  description: string ;
   /**
    * 색
    * @example "fff000"
    */
-  @IsHexColor()
-  color: string | null;
+  @IsString()
+  color: string ;
   /**
    * 날짜
    *    * @example "Tue Jan 16 2024 19:58:06 GMT+0900 (Korean Standard Time)"
    */
   @IsString()
-  deadline: Date | null;
+  deadline: string ;
 
   /**
    * 유저 아이디
    *    * @example 1
    */
   @IsNumber()
-  assignedUserId: number | null;
+  assignedUserId: number ;
 
   /**
    * 카드 이동할 위치   *    * @example "1"
    */
   @IsNumber()
-  cardPosition: number | null;
+  cardPosition: number ;
     
   /*
   * 카드가 이동할 칼럼 
