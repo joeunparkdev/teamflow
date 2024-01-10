@@ -7,10 +7,21 @@ import { User } from '../user/entities/user.entity';
 import { Comments } from '../comments/entities/comments.entity';
 import { UserModule } from '../user/user.module';
 import { Columns } from '../columns/entities/columns.entity';
+import { SlackModule } from 'nestjs-slack';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Cards, Comments, User, Columns]),
+    SlackModule.forRootAsync({
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'webhook',
+          url: configService.get<string>('WEB_HOOK_URL'),
+        };
+      },
+      inject: [ConfigService],
+    }),
     UserModule,
   ],
   controllers: [CardsController],
