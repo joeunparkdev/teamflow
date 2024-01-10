@@ -19,7 +19,7 @@ export class UpdateCardsDto{
     @IsNumber()
     cardPosition: number|null;
 
-    @IsString()
-    status:string|null;
+    @IsNumber()
+    moveToColumnId: number;
     
 }
