@@ -47,7 +47,27 @@ export class CardsService {
 
   async getCard(cardId: number) {
     const one_card = await this.verifyCardById(cardId);
-    return one_card;
+   
+    const assignedUser= await this.userRepository.findOneBy({id:one_card.assignedUserId});
+
+    const column_list= await this.columnsRepository.findOneBy({id:one_card.columnId})
+    
+    return {
+      id:one_card.id,
+      name:one_card.name,
+      describe:one_card.description,
+      color:one_card.color,
+      deadline:one_card.deadline,
+      assignedUserId:one_card.assignedUserId,
+      assignedUserName:assignedUser.name,
+      orderNum:one_card.orderNum,
+      status:column_list.name,
+      createUserId:one_card.createUserId,
+      columnId:one_card.columnId,
+      createdAt:one_card.createdAt,
+      updatedAt:one_card.updatedAt,
+      comments:one_card.comments,
+    };
   }
 
   async createCard(cardsDto:CardsDto,user_id:number,columnId:number){
@@ -64,9 +84,7 @@ export class CardsService {
       cards_num =Number(many_card[many_card.length-1].orderNum)+1:
       cards_num =1;
 
-    for(let i of cardsDto.assignedUserId){
-       await this.verifyUserById(i);
-    }
+      await this.verifyUserById(cardsDto.assignedUserId);
 
     const column= await this.verifyColumnById(columnId);
     
@@ -88,9 +106,7 @@ export class CardsService {
     //이거는 같은 컬럼에서의 이동
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
-    //const column_by_name = await this.verifyColumnByName(updateCardsDto.status);//다른컬럼으로 이동시 업데이트 상태로 columnId를 받는다
     
-    //const column_id =column_by_name[0].id;
 
     const many_card =await this.cardsRepository.find({
       where:{columnId:updateCardsDto.moveToColumnId}, 
@@ -158,7 +174,11 @@ export class CardsService {
 }
 
   private async verifyCardById(cardId: number) {
-    const one_card = await this.cardsRepository.findOneBy({ id: cardId });
+    const one_card = await this.cardsRepository.findOne({
+      where:{ id: cardId}, 
+      relations: { comments: true },
+      order: { createdAt: 'ASC' },
+    });
     if (_.isNil(one_card)) {
       throw new NotFoundException('존재하지 않는 카드 입니다.');
     }
