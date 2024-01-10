@@ -21,6 +21,7 @@ export class CommentsService {
     commentData: CreateCommentDto,
   ) {
     const user = await this.userService.findOneById(userId);
+
     if (!user) {
       throw new BadRequestException('댓글을 달 수 있는 권한이 없습니다');
     }
