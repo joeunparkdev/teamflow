@@ -35,4 +35,4 @@ seeder({
 
     TypeOrmModule.forFeature([User,Board, BoardUser, Columns, Cards, Comments]),
   ],
-}).run([UserSeed,BoardSeed,BoardUserSeed]);
+}).run([UserSeed,BoardSeed]);
