@@ -35,10 +35,10 @@ export class UpdateCardsDto {
 
   /**
    * 유저 아이디
-   *    * @example "[1]"
+   *    * @example 1
    */
-  @IsArray()
-  assignedUserId: number[] | null;
+  @IsNumber()
+  assignedUserId: number | null;
 
   /**
    * 카드 이동할 위치   *    * @example "1"

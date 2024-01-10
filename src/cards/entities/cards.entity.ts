@@ -30,8 +30,8 @@ export class Cards {
   @Column({ type: 'varchar', nullable: true })
   deadline: Date;
 
-  @Column({ type: 'simple-array', nullable: true })
-  assignedUserId: number[];
+  @Column({ type: 'bigint', nullable: true })
+  assignedUserId: number;
 
   @Column({ type: 'float', nullable: true })
   orderNum: number; 
