@@ -194,7 +194,7 @@ export class BoardService {
       where: { code },
     });
 
-    const invitedUser = await this.boardUserRepository.findOne({
+    const invitedUser = await this.invitationRepository.findOne({
       where: { userId },
     });
 
