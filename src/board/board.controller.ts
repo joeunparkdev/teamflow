@@ -13,7 +13,7 @@ import { BoardService } from './board.service';
 import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitationDto } from './dto/invitation.dto';
-import { CodeDto } from './dto/code.dto';
+import { InvitationVerifyingCodeDto } from './dto/invitationVerifyingCode.dto';
 import { VerifyCodeDto } from '../auth/dtos/verify-code.dto';
 import { EmailService } from '../email/email.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -152,6 +152,7 @@ export class BoardController {
    * @Request req
    * @returns
    */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('/invite')
   async inviteMember(@Body() invitationDto: InvitationDto, @Request() req) {
@@ -178,18 +179,20 @@ export class BoardController {
 
   /**
    * 멤버 확인하기
-   * @Body codeDto
+   * @Body invitationVerifyingCodeDto
    * @returns
    */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('checkMember')
-  async checkMember(@Body() codeDto: CodeDto, @Request() req) {
+  async checkMember(
+    @Body() invitationVerifyingCodeDto: InvitationVerifyingCodeDto,
+    @Request() req,
+  ) {
     try {
-      const { email, verificationCode, boardId } = codeDto;
+      const { verificationCode, boardId } = invitationVerifyingCodeDto;
       const userId = req.user.id;
       const result = await this.boardService.verifyCode(
-        email,
         verificationCode,
         boardId,
         userId,

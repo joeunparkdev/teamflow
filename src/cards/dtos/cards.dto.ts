@@ -39,7 +39,7 @@ export class CardsDto {
 
   /**
    * 유저 아이디
-   *    * @example "[1]"
+   *    * @example "1"
    */
   @IsNumber()
   assignedUserId: number ;
