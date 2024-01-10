@@ -253,7 +253,7 @@ export class CardsService {
       });
       const cardName = card.name;
       this.slackService.sendText(
-        `${userName}님이 ${cardName}카드를 변경했습니다.`,
+        `${userName}님이 "${cardName}"카드를 변경했습니다.`,
       );
     } catch (error) {
       console.error(error);

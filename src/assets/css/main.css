@@ -1,0 +1,20 @@
+.one_board{
+    display: grid;
+    grid-template-columns: 300px 300px;
+    
+}
+
+.one_column{
+    width: 200px;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid ;
+    border-radius: 10px;
+}
+
+.one_card{
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid ;
+    border-radius: 10px;
+}
