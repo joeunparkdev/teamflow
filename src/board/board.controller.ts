@@ -152,6 +152,7 @@ export class BoardController {
    * @Request req
    * @returns
    */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('/invite')
   async inviteMember(@Body() invitationDto: InvitationDto, @Request() req) {
