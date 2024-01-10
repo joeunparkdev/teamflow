@@ -125,6 +125,7 @@ export class BoardService {
     const checkCreator = await this.boardRepository.findOne({
       where: { creator: userId, id: boardId },
     });
+    console.log(checkCreator);
     if (!checkCreator) {
       throw new ForbiddenException('보드 생성자만 초대를 할 수 있습니다.');
     }
