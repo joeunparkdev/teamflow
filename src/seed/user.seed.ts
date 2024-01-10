@@ -12,7 +12,7 @@ export class UserSeed implements Seeder {
   ) {}
 
   seed(): Promise<any> {
-    const user = DataFactory.createForClass(User).generate(50);
+    const user = DataFactory.createForClass(User).generate(10);
 
     return this.userRepository.insert(user);
   }

@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ExecutionContext } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
-import { extractTokenFromHeader } from '../helpers/auth.helper';
+import { extractTokenFromHeader } from '../../helpers/auth.helper';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

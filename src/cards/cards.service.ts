@@ -130,7 +130,7 @@ export class CardsService {
         deadline: updateCardsDto.deadline,
         assignedUserId: updateCardsDto.assignedUserId,
         orderNum: updateOrderNum,
-        status: updateCardsDto.status,
+        //status: updateCardsDto.status,
       },
     );
 

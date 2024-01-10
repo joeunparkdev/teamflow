@@ -155,7 +155,7 @@ export class AuthService {
   }
 
   async resetPassword(email: string, newPassword: string): Promise<void> {
-    const hashedPassword = await hashPassword(newPassword);
+    const hashedPassword =  hashPassword(newPassword);
 
     await this.updatePassword(email, hashedPassword);
   }

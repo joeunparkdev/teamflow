@@ -5,14 +5,14 @@ import { Repository } from 'typeorm';
 import { Board } from '../board/entities/board.entity';
 
 @Injectable()
-export class ColumnSeed implements Seeder {
+export class BoardSeed implements Seeder {
   constructor(
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
   ) {}
 
   seed(): Promise<any> {
-    const board = DataFactory.createForClass(Board).generate(50);
+    const board = DataFactory.createForClass(Board).generate(10);
 
     return this.boardRepository.insert(board);
   }

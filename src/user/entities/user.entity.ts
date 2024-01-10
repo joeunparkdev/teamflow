@@ -12,6 +12,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -20,6 +22,8 @@ import { Comments } from '../../comments/entities/comments.entity';
 import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 import { Factory } from 'nestjs-seeder';
+import { hashPassword } from '../../helpers/password.helper';
+import { Board } from '../../board/entities/board.entity';
 
 @Entity('users')
 export class User {
@@ -46,7 +50,7 @@ export class User {
    * 비밀번호
    * @example "Ex@mp1e!!"
    */
-  @Factory((faker) => faker.internet.password())
+  @Factory((faker) => hashPassword('Ex@mp1e!!'))
   @IsNotEmpty({ message: '비밀번호을 입력해 주세요.' })
   @IsStrongPassword(
     {},
@@ -62,7 +66,7 @@ export class User {
    * 닉네임
    * @example "홍길동"
    */
-  @Factory((faker) => faker.internet.userName())
+  @Factory((faker) => faker.person.firstName())
   @IsNotEmpty({ message: '이름을 입력해 주세요.' })
   @IsString()
   @Column()
@@ -93,6 +97,19 @@ export class User {
   @IsEnum(UserRole)
   @Column({ type: 'enum', enum: UserRole, default: UserRole.User })
   role: UserRole;
+
+  @OneToMany(() => Board, (boards) => boards.creator)
+  boards: Board[];
+
+
+//   @ManyToMany(() => Board, (boards) => boards.members)
+//   @JoinTable({ name: 'boardUsers',
+//   joinColumn:{name:'user_id',referencedColumnName:'id'},
+//   inverseJoinColumn:{name:'board_id', referencedColumnName:'id'}
+//  })//자동생성대신 이미 생성된 테이블과 연결
+//   //user_id = boardUsers안에 존재하는 컬럼
+//   //board_id = boardUsers안에 존재하는 컬럼
+//   joinedBoards: Board[];
 
   /**
    * 상태

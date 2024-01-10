@@ -12,7 +12,8 @@ export class ColumnSeed implements Seeder {
   ) {}
 
   seed(): Promise<any> {
-    const columns = DataFactory.createForClass(Columns).generate(50);
+    const columns = DataFactory.createForClass(Columns).generate(10);
+    console.log(columns);
 
     return this.columnsRepository.insert(columns);
   }

@@ -18,11 +18,11 @@ export class Cards {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Factory((faker) => faker.lorem.words(2))
+  @Factory((faker) => faker.lorem.words(1))
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
-  @Factory((faker) => faker.lorem.words(6))
+  @Factory((faker) => faker.lorem.text())
   @Column({ type: 'varchar', nullable: true })
   description: string;
 
@@ -42,14 +42,15 @@ export class Cards {
   @Column({ type: 'float', nullable: true })
   orderNum: number;
 
-  @Column({ type: 'varchar', nullable: false })
-  status: string;
+  // @Column({ type: 'varchar', nullable: false })
+  // status: string;
 
   @Factory((faker) => faker.number.bigInt())
   @Column({ type: 'bigint', nullable: true })
   createUserId: number;
 
-  @OneToMany(() => Comments, (comment) => comment.card, { cascade: true })
+  @OneToMany(() => Comments, (comment) => comment.card)
+  @JoinColumn()
   comments: Comments[];
 
   @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
@@ -63,10 +64,6 @@ export class Cards {
   @ManyToOne(() => User, (user) => user.cards, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
-
-  @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  columns: Columns;
 
   @CreateDateColumn()
   createdAt: Date;

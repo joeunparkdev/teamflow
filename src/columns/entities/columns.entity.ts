@@ -32,7 +32,7 @@ export class Columns {
    * 컬럼 이름
    * @example "할 일"
    */
-  @Factory((faker) => faker.lorem.words(2))
+  @Factory((faker) => faker.lorem.words(3))
   @IsNotEmpty({ message: '컬럼 이름을 입력해 주세요.' })
   @Column({ unique: true })
   name: string;
@@ -41,7 +41,7 @@ export class Columns {
    * 컬럼 순서
    * @example "0"
    */
-  @Factory((faker) => faker.number.int())
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 100 }))
   @IsNotEmpty({ message: '컬럼 순서를 입력해 주세요.' })
   @IsNumber(
     {},
@@ -49,7 +49,6 @@ export class Columns {
       message: '컬럼 순서는 숫자로만 입력 가능합니다.',
     },
   )
-  @Factory((faker) => faker.number.int())
   @Column({ unique: true })
   position: string;
 
@@ -57,7 +56,7 @@ export class Columns {
    * 보드 아이디
    * @example "9"
    */
-  @Factory((faker) => faker.number.int())
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
   @IsNotEmpty({ message: '보드 아이디를 입력해 주세요.' })
   @IsNumber()
   @Column()
@@ -67,11 +66,11 @@ export class Columns {
   @JoinColumn()
   board: Board;
 
-  @OneToMany(() => Cards, (card) => card.columns, { cascade: true })
+  @OneToMany(() => Cards, (card) => card.column)
   @JoinColumn()
   cards: Cards[];
 
-  @Factory((faker) => faker.number.int())
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
   @Column({ nullable: false })
   createdUserId: number;
 
