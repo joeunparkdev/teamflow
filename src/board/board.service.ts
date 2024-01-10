@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { BoardDto } from './dto/board.dto';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
 import _ from 'lodash';
@@ -15,8 +15,6 @@ import nodemailer from 'nodemailer';
 import { Invitation } from './entities/invitation.entity';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
-import { CodeDto } from './dto/code.dto';
-import { EmailVerification } from '../email/entities/email.entity';
 import { BoardUser } from '../board-user/entities/board-user.entity';
 import { User } from '../user/entities/user.entity';
 
@@ -120,6 +118,12 @@ export class BoardService {
     if (!board) {
       throw new NotFoundException('존재하지 않는 보드입니다.');
     }
+    const member = await this.userRepository.findOne({
+      where: { email: memberEmail },
+    });
+    if (!member) {
+      throw new NotFoundException('존재하지 않는 사용자입니다.');
+    }
 
     //user가 creator인지 확인
     const checkCreator = await this.boardRepository.findOne({
@@ -127,6 +131,23 @@ export class BoardService {
     });
     if (!checkCreator) {
       throw new ForbiddenException('보드 생성자만 초대를 할 수 있습니다.');
+    }
+
+    // 이미 초대되어 있는 멤버일 경우 초대 안되게 막기
+    const invitedUser = await this.userRepository.findOne({
+      where: { email: memberEmail },
+    });
+    const invitedUserId = invitedUser.id;
+
+    const alreadyInvitedMember = await this.boardUserRepository.findOne({
+      where: { userId: invitedUserId, boardId },
+    });
+    const creator = await this.boardRepository.findOne({
+      where: { creator: invitedUserId, id: boardId },
+    });
+
+    if (alreadyInvitedMember || creator) {
+      throw new BadRequestException('이미 보드에 포함된 멤버입니다.');
     }
 
     const verificationCode = await this.createVerificationCode(
@@ -176,6 +197,9 @@ export class BoardService {
     const invitedUser = await this.userRepository.findOne({
       where: { email: memberEmail },
     });
+    if (!invitedUser) {
+      throw new NotFoundException('초대하려는 유저가 존재하지 않습니다.');
+    }
     const userId = invitedUser.id;
     await this.invitationRepository.save({
       userId,
@@ -188,7 +212,7 @@ export class BoardService {
   }
 
   // 인증 코드 확인
-  async verifyCode(email, code, boardId, userId) {
+  async verifyCode(code, boardId, userId) {
     const savedCode = await this.invitationRepository.findOne({
       where: { code },
     });
@@ -197,24 +221,12 @@ export class BoardService {
       where: { userId },
     });
 
-    const savedUser = await this.userRepository.findOne({
-      where: { id: userId },
-    });
-    const invitedUserEmail = savedUser.email;
-
-    console.log({ email });
-    console.log({ invitedUserEmail });
     if (!invitedUser) {
       throw new NotFoundException('초대받지 않은 유저입니다.');
     }
-    if (invitedUserEmail !== email) {
-      throw new BadRequestException(
-        '입력한 이메일과 초대받은 이메일이 다릅니다.',
-      );
-    }
 
     if (!savedCode) {
-      throw new NotFoundException('인증 코드가 발송되지 않았습니다.');
+      throw new NotFoundException('인증 코드가 일치하지 않습니다.');
     }
     if (Date.now() > savedCode.expiry.getTime()) {
       await this.invitationRepository.delete({ userId });
