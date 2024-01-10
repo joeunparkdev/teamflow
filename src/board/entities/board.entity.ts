@@ -36,10 +36,10 @@ export class Board {
   @Column({ type: 'int', nullable: false })
   creator: number;
 
-  @OneToMany(() => Columns, (column) => column.board, { cascade: true })
+  @OneToMany(() => Columns, (column) => column.board)
   columns: Columns[];
 
-  @OneToMany(() => BoardUser, (boardUser) => boardUser.board, { cascade: true })
+  @OneToMany(() => BoardUser, (boardUser) => boardUser.board)
   boardUsers: BoardUser[];
 
    // @ManyToMany(() => User, (users) => users.boards)

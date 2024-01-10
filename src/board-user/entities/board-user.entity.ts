@@ -21,11 +21,11 @@ export class BoardUser {
   userId: number;
 
   @ManyToOne(() => Board, (board) => board.boardUsers, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'boardId' })
+  @JoinColumn()
   board: Board;
   
   @ManyToOne(() => User, (user) => user.boardUsers, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User;
   
 }

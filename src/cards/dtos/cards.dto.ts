@@ -41,6 +41,6 @@ export class CardsDto {
    * 유저 아이디
    *    * @example "[1]"
    */
-  @IsArray()
-  assignedUserId: number[] | null;
+  @IsNumber()
+  assignedUserId: number | null;
 }
