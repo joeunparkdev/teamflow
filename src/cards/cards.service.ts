@@ -159,9 +159,10 @@ export class CardsService {
   private async verifyCardById(cardId: number) {
     const one_card = await this.cardsRepository.findOne({
       where:{ id: cardId}, 
-      relations: { comments: true },
-      order: { createdAt: 'ASC' },
+      relations: { comments: {user:true} },
+      order:{comments:{createdAt:"DESC"}}
     });
+
     if (_.isNil(one_card)) {
       throw new NotFoundException('존재하지 않는 카드 입니다.');
     }
