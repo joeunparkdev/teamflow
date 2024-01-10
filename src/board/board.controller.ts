@@ -14,17 +14,25 @@ import { BoardDto } from './dto/board.dto';
 import { UpdateBoardDto } from './dto/updateBoard.dto';
 import { InvitationDto } from './dto/invitation.dto';
 import { CodeDto } from './dto/code.dto';
-import { VerifyCodeDto } from 'src/auth/dtos/verify-code.dto';
-import { EmailService } from 'src/email/email.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { VerifyCodeDto } from '../auth/dtos/verify-code.dto';
+import { EmailService } from '../email/email.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('보드')
 @Controller('board')
 export class BoardController {
   constructor(
     private readonly boardService: BoardService,
     private readonly emailService: EmailService,
   ) {}
-
+  /**
+   * 보드 생성
+   * @request req
+   * @body boardDto
+   * @returns
+   */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   async postBoard(@Request() req, @Body() boardDto: BoardDto) {
@@ -46,6 +54,14 @@ export class BoardController {
     }
   }
 
+  /**
+   * 보드 수정
+   * @param boardId
+   * @body updateBoardDto
+   * @req req
+   * @returns
+   */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Put(':boardId')
   async updateBoard(
@@ -75,8 +91,13 @@ export class BoardController {
       };
     }
   }
-
-  // creator만 삭제할 수 있도록 만들기
+  /**
+   * 보드 삭제
+   * @param boardId
+   * @req req
+   * @returns
+   */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':boardId')
   async deleteBoard(@Request() req, @Param('boardId') boardId: number) {
@@ -100,6 +121,11 @@ export class BoardController {
     }
   }
 
+  /**
+   * 특정 보드 가져오기
+   * @param boardId
+   * @returns
+   */
   // workspace 안 만들었기 때문에 하나씩만 조회 가능하도록 만듦.
   @Get(':boardId')
   async getBoard(@Param('boardId') boardId: number) {
@@ -120,6 +146,12 @@ export class BoardController {
     }
   }
 
+  /**
+   * 초대하기
+   * @param invitationDto
+   * @Request req
+   * @returns
+   */
   @UseGuards(JwtAuthGuard)
   @Post('/invite')
   async inviteMember(@Body() invitationDto: InvitationDto, @Request() req) {
@@ -144,9 +176,15 @@ export class BoardController {
     }
   }
 
+  /**
+   * 멤버 확인하기
+   * @Body codeDto
+   * @returns
+   */
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('checkMember')
-  async checkMember(@Body() codeDto: CodeDto) {
+  async checkMember(@Body() codeDto: CodeDto, @Request() req) {
     try {
       const { email, verificationCode, boardId } = codeDto;
       const result = await this.boardService.verifyCode(

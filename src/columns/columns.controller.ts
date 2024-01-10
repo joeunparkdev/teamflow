@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LexoRank } from 'lexorank';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ColumnsService } from './columns.service';
 import { ColumnsMoveDto } from './dtos/columns-move.dto';
 import { ColumnsDto } from './dtos/columns.dto';
