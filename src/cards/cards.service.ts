@@ -88,12 +88,12 @@ export class CardsService {
     //이거는 같은 컬럼에서의 이동
     const one_card = await this.verifyCardById(cardId);
     await this.checkCard(one_card.createUserId, user_id);
-    const column_by_name = await this.verifyColumnByName(updateCardsDto.status);//다른컬럼으로 이동시 업데이트 상태로 columnId를 받는다
+    //const column_by_name = await this.verifyColumnByName(updateCardsDto.status);//다른컬럼으로 이동시 업데이트 상태로 columnId를 받는다
     
-    const column_id =column_by_name[0].id;
+    //const column_id =column_by_name[0].id;
 
     const many_card =await this.cardsRepository.find({
-      where:{columnId:column_id}, 
+      where:{columnId:updateCardsDto.moveToColumnId}, 
       select: ['id', 'name', 'orderNum'],
       order: { orderNum: 'ASC' },
       relations: { comments: true },
@@ -108,8 +108,7 @@ export class CardsService {
         deadline:updateCardsDto.deadline,
         assignedUserId:updateCardsDto.assignedUserId,
         orderNum:0,
-        columnId:column_id,
-        status:updateCardsDto.status,
+        columnId:updateCardsDto.moveToColumnId,
       })
       return ;
     }
@@ -138,33 +137,8 @@ export class CardsService {
       deadline:updateCardsDto.deadline,
       assignedUserId:updateCardsDto.assignedUserId,
       orderNum:updateOrderNum,
-      status:updateCardsDto.status,
+      columnId:updateCardsDto.moveToColumnId,
     });
-    
-    /*
-    //카드를 현재보다 위로 이동했을 때 1 0
-    //one_card.orderNum와 updateCardsDto.orderNum 사이의 orderNum값을 -1해줌
-    if(one_card.orderNum>updateCardsDto.orderNum){
-      console.log("시작위치"+Number(updateCardsDto.orderNum)+1)
-      console.log("도착위치"+Number(one_card.orderNum)+1)
-      for(let i:number=Number(updateCardsDto.orderNum);i<Number(one_card.orderNum);i++){
-        console.log(i);
-        await this.cardsRepository.update({orderNum:i},{orderNum:Number(i)+1})
-      }
-      await this.cardsRepository.update({id:cardId},updateCardsDto)
-
-    }//카드를 현재보다 밑으로 이동했을 때
-    //one_card.orderNum와 updateCardsDto.orderNum 사이의 orderNum값을 +1해줌
-    else if(one_card.orderNum<updateCardsDto.orderNum){
-      for(let i:number=Number(one_card.orderNum);i<Number(updateCardsDto.orderNum)+1;i++){
-        await this.cardsRepository.update({orderNum:i},{orderNum:i-1})
-      }
-      await this.cardsRepository.update({id:cardId},updateCardsDto)
-    }
-    */
-
-    //const updated_card = await this.cardsRepository.update({ id: cardId },updateCardsDto,);
-
     
   }
   
