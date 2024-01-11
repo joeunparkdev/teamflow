@@ -16,6 +16,8 @@ import * as mime from 'mime-types';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @ApiTags('파일')
+@ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
@@ -27,8 +29,7 @@ export class FilesController {
    * @uploadFile
    * @returns
    */
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  
   @Post(':cardId')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
@@ -66,8 +67,7 @@ export class FilesController {
    * @param
    * @returns
    */
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+
   @Delete(':cardId/:fileId')
   async deleteFile(
     @Param('cardId') cardId: number,
