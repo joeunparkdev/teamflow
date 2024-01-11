@@ -41,7 +41,7 @@ export class Columns {
    * 컬럼 순서
    * @example "0"
    */
-  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 300 }))
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 100 }))
   @IsNotEmpty({ message: '컬럼 순서를 입력해 주세요.' })
   @IsNumber(
     {},

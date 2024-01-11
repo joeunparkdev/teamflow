@@ -16,6 +16,7 @@ import { CommentsModule } from './comments/comments.module';
 import { ColumnsModule } from './columns/columns.module';
 import { BoardUserService } from './board-user/board-user.service';
 import { BoardUserModule } from './board-user/board-user.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { BoardUserModule } from './board-user/board-user.module';
     BoardModule,
     CommentsModule,
     BoardUserModule,
+    FilesModule
   ],
 })
 export class AppModule {}
