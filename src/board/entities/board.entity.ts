@@ -21,7 +21,7 @@ export class Board {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Factory((faker) => faker.lorem.words(2))
+  @Factory((faker) => faker.lorem.words(3))
   @Column({ type: 'varchar', unique: true, nullable: false })
   name: string;
 

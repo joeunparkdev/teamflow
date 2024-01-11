@@ -12,7 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
-import { Files } from '@/files/entities/file.entity';
+import { Files } from '../../files/entities/file.entity';
 
 @Entity('cards')
 export class Cards {

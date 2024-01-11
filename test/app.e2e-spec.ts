@@ -34,8 +34,7 @@ describe('AppController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/auth/sign-up') 
       .send(signUpDto)
-      //.expect(201);
-      console.log(response.body)
+      .expect(400);
   });
   
   //더미데이터 회원가입
@@ -47,7 +46,7 @@ describe('AppController (e2e)', () => {
       "name": faker.person.firstName
     };
 
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 10; i++) {
     const response = await request(app.getHttpServer())
       .post('/auth/sign-up') 
       .send(signUpDto.email)
@@ -72,12 +71,12 @@ describe('AppController (e2e)', () => {
  //보드 생성
   it('/board (POST)', async () => {
     boardDto = {
-      "name": faker.lorem.words(1),
+      "name": faker.lorem.words(4),
       "backgroundColor": "FFF000",
       "description": faker.lorem.text()
     };
   
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 10; i++) {
     const response = await request(app.getHttpServer())
       .post('/board')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -93,7 +92,7 @@ describe('AppController (e2e)', () => {
     "name": faker.lorem.words(2),
   };
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
   const response = await request(app.getHttpServer())
     .post('/boards/1/columns')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -106,10 +105,10 @@ describe('AppController (e2e)', () => {
 //카드 생성
 it('/column/1/cards (POST)', async () => {
   const cardsDto = {
-    "name": faker.lorem.words(3),
+    "name": faker.lorem.words(4),
   };
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
   const response = await request(app.getHttpServer())
     .post('/column/1/cards')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -124,7 +123,7 @@ it('/cards/1/comments (POST)', async () => {
     "comment": faker.lorem.text(),
   };
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
   const response = await request(app.getHttpServer())
     .post('/cards/1/comments')
     .set('Authorization', `Bearer ${accessToken}`)

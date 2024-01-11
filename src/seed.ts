@@ -8,6 +8,7 @@ import { Cards } from './cards/entities/cards.entity';
 import { Columns } from './columns/entities/columns.entity';
 import { Comments } from './comments/entities/comments.entity';
 import { configModuleValidationSchema } from './configs/env-validation.config';
+import { Files } from './files/entities/file.entity';
 import { BoardUserSeed } from './seed/board-user.seed';
 import { BoardSeed } from './seed/board.seed';
 import { CardSeed } from './seed/card.seed';
@@ -29,10 +30,10 @@ seeder({
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       //  autoLoadEntities: true,
-      entities: [User, Cards, Comments, Columns, Board, BoardUser],
+      entities: [User, Cards, Comments, Columns, Board, BoardUser,Files],
       synchronize: process.env.DB_SYNC === 'true',
     }),
 
-    TypeOrmModule.forFeature([User,Board, BoardUser, Columns, Cards, Comments]),
+    TypeOrmModule.forFeature([User,Board, BoardUser, Columns, Cards, Comments,Files]),
   ],
 }).run([UserSeed,BoardSeed]);
