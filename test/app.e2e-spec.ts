@@ -12,7 +12,7 @@ let signUpDto: SignUpDto;
 let boardDto : BoardDto;
 describe('AppController (e2e)', () => {
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -20,9 +20,10 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
   });
-  for (let i = 0; i < 5; i++) {
+
   //첫번째 회원가입
   it('/auth/sign-up (POST)', async () => {
+
     const signUpDto = {
       "passwordConfirm": "Ex@mp1e!!",
       "email": "example@example.com",
@@ -36,7 +37,7 @@ describe('AppController (e2e)', () => {
       //.expect(201);
       console.log(response.body)
   });
-
+  
   //더미데이터 회원가입
   it('/auth/sign-up (POST)', async () => {
     const signUpDto = {
@@ -46,11 +47,12 @@ describe('AppController (e2e)', () => {
       "name": faker.person.firstName
     };
 
+    for (let i = 0; i < 50; i++) {
     const response = await request(app.getHttpServer())
       .post('/auth/sign-up') 
       .send(signUpDto.email)
       .expect(201);
-      console.log(response.body)
+      console.log(response.body)}
   });
 
   //로그인
@@ -75,12 +77,13 @@ describe('AppController (e2e)', () => {
       "description": faker.lorem.text()
     };
   
+    for (let i = 0; i < 50; i++) {
     const response = await request(app.getHttpServer())
       .post('/board')
       .set('Authorization', `Bearer ${accessToken}`)
       .send(boardDto)
       .expect(201);
-      console.log(response.body)
+      console.log(response.body)}
   
   });
 
@@ -90,12 +93,13 @@ describe('AppController (e2e)', () => {
     "name": faker.lorem.words(2),
   };
 
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
     .post('/boards/1/columns')
     .set('Authorization', `Bearer ${accessToken}`)
     .send(columnsDto)
     .expect(201);
-    console.log(response.body)
+    console.log(response.body)}
 
 });
 
@@ -105,12 +109,13 @@ it('/column/1/cards (POST)', async () => {
     "name": faker.lorem.words(3),
   };
 
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
-    .post('/column/2/cards')
+    .post('/column/1/cards')
     .set('Authorization', `Bearer ${accessToken}`)
     .send(cardsDto)
      .expect(201);
-     console.log(response.body)
+     console.log(response.body)}
 });
 
 //댓글 생성
@@ -119,15 +124,15 @@ it('/cards/1/comments (POST)', async () => {
     "comment": faker.lorem.text(),
   };
 
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
     .post('/cards/1/comments')
     .set('Authorization', `Bearer ${accessToken}`)
     .send(createCommentDto)
     .expect(201);
-    console.log(response.body);
-    
+    console.log(response.body);}
 });
-  }
+  
 
   afterAll(async () => {
     await app.close(); 
