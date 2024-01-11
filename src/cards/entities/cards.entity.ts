@@ -12,6 +12,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
+import { Files } from '@/files/entities/file.entity';
 
 @Entity('cards')
 export class Cards {
@@ -49,6 +50,10 @@ export class Cards {
   @OneToMany(() => Comments, (comment) => comment.card)
   @JoinColumn()
   comments: Comments[];
+
+  @OneToMany(() => Files, (files) => files.card)
+  @JoinColumn()
+  files: Files[];
 
   @ManyToOne(() => Columns, (column) => column.cards, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'column_id', referencedColumnName: 'id' })

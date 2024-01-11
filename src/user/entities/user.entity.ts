@@ -19,7 +19,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
-import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 import { Factory } from 'nestjs-seeder';
 import { hashPassword } from '../../helpers/password.helper';
@@ -31,8 +30,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => Cards, (card) => card.user)
-  cards: Cards[];
+  @OneToMany(() => Comments, (card) => card.user)
+  cards: Comments[];
 
   @OneToMany(() => Comments, (comment) => comment.user)
   comments: Comments[];

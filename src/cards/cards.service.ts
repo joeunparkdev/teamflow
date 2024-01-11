@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -259,4 +260,25 @@ export class CardsService {
       console.error(error);
     }
   }
+   // cardId의 할당된 사용자인지 여부 확인
+async verifyAssignedUser(cardId: number, userId: number) {
+  // cardId를 통해 card 객체 반환
+  const card = await this.getCard(cardId);
+  // card 객체가 존재하지 않는 경우 예외 메시지 출력
+  if (!card) {
+    throw new BadRequestException('카드가 존재하지 않습니다.');
+  }
+
+  // Ensure assignedUserId is an array
+  const assignedUserIds = Array.isArray(card.assignedUserId)
+    ? card.assignedUserId.map(Number)
+    : [card.assignedUserId];
+
+  // array.includes(item);
+  // 할당된 사용자가 아닌 경우 예외 메시지 출력
+  if (!assignedUserIds.includes(userId)) {
+    throw new UnauthorizedException('할당되지 않은 유저입니다.');
+  }
+}
+
 }
