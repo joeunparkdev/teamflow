@@ -65,6 +65,8 @@ export class CardsService {
 
   async createCard(cardsDto: CardsDto, user_id: number, columnId: number) {
     //const cards_num:number=(await this.cardsRepository.find()).length;
+    
+
     const many_card = await this.cardsRepository.find({
       where: { columnId },
       select: ['id', 'name', 'orderNum'],
@@ -110,6 +112,8 @@ export class CardsService {
       relations: { comments: true },
     });
 
+    
+
     if (!many_card.length) {
       await this.cardsRepository.update(
         { id: cardId },
@@ -126,28 +130,31 @@ export class CardsService {
       return;
     }
 
+   
     let cardMovePosition = Math.floor(updateCardsDto.cardPosition); //카드가 이동할 위치
 
     let updateOrderNum: number;
 
+    //TODO:추후에 현위치와 업데이시 위치가 같은지 확인
     //이동하려는 장소 orderNum이 0~마지막 카드의 orderNum인데 넘어가면 orderNumㅇ
-    if (cardMovePosition > many_card[many_card.length - 1].orderNum) {
+    if (cardMovePosition >= many_card[many_card.length - 1].orderNum) {
       //가장뒤로 갈떄
-
+    
       updateOrderNum = Number(many_card[many_card.length - 1].orderNum) + 1; //가장 뒤에있는 카드의 위치값+1
-    } else if (cardMovePosition < many_card[0].orderNum) {
+    } else if (cardMovePosition <= many_card[0].orderNum) {
       //가장 앞으로 갈 때 hoppers
-
+     
       updateOrderNum = Number(many_card[0].orderNum) / 2; //0번째 카드의 위치값/2
     } else {
+      
       //그 외 가고싶은 위치의 앞뒤 카드의 위치/2
       updateOrderNum =
         (Number(many_card[cardMovePosition - 1].orderNum) +
           Number(many_card[cardMovePosition].orderNum)) /
         2;
     }
-
-    await this.cardsRepository.update(
+    
+    const updateCard= await this.cardsRepository.update(
       { id: cardId },
       {
         name: updateCardsDto.name,
@@ -159,7 +166,7 @@ export class CardsService {
         columnId: updateCardsDto.moveToColumnId,
       },
     );
-
+      
     // 변경사항 슬랙 알림으로 전달
     await this.sendMessageToSlack(user_id, cardId);
   }

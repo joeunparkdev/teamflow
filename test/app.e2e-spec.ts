@@ -89,10 +89,10 @@ describe('AppController (e2e)', () => {
   //컬럼 생성
  it(`/boards/1/columns (POST)`, async () => {
   const columnsDto = {
-    "name": faker.lorem.words(2),
+    "name": faker.lorem.words(3),
   };
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
     .post('/boards/1/columns')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -108,7 +108,7 @@ it('/column/1/cards (POST)', async () => {
     "name": faker.lorem.words(4),
   };
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
     .post('/column/1/cards')
     .set('Authorization', `Bearer ${accessToken}`)
@@ -123,7 +123,7 @@ it('/cards/1/comments (POST)', async () => {
     "comment": faker.lorem.text(),
   };
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 50; i++) {
   const response = await request(app.getHttpServer())
     .post('/cards/1/comments')
     .set('Authorization', `Bearer ${accessToken}`)
