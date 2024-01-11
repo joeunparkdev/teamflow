@@ -19,6 +19,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Comments } from '../../comments/entities/comments.entity';
+import { Cards } from '../../cards/entities/cards.entity';
 import { UserRole } from '../types/user-role.type';
 import { Factory } from 'nestjs-seeder';
 import { hashPassword } from '../../helpers/password.helper';
@@ -30,8 +31,8 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToMany(() => Comments, (card) => card.user)
-  cards: Comments[];
+  @OneToMany(() => Cards, (card) => card.user)
+  cards: Cards[];
 
   @OneToMany(() => Comments, (comment) => comment.user)
   comments: Comments[];
@@ -42,7 +43,7 @@ export class User {
    * 이메일
    * @example "example@example.com"
    */
-  @Factory((faker) => faker.lorem.words(1)+"@"+faker.lorem.words(1)+".com",)
+  @Factory((faker) => faker.internet.email())
   @IsNotEmpty({ message: '이메일을 입력해 주세요.' })
   @IsEmail({}, { message: '이메일 형식에 맞지 않습니다.' })
   @Column({ unique: true })

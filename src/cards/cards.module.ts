@@ -9,7 +9,7 @@ import { UserModule } from '../user/user.module';
 import { Columns } from '../columns/entities/columns.entity';
 import { SlackModule } from 'nestjs-slack';
 import { ConfigService } from '@nestjs/config';
-import { Files } from '@/files/entities/file.entity';
+import { Files } from '../files/entities/file.entity';
 
 @Module({
   imports: [

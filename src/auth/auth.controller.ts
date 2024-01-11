@@ -88,7 +88,7 @@ export class AuthController {
   }
 
   /**
-   * 엑세스 토큰 재발급 API
+   * 리프레쉬 토큰 재발급 
    * @param req
    * @returns {Object} statusCode, message, accessToken
    */
