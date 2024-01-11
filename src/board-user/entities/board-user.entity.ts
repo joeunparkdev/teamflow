@@ -13,10 +13,12 @@ import { Factory } from 'nestjs-seeder';
 export class BoardUser {
   @PrimaryGeneratedColumn()
   id: number;
-  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
+
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 20 }))
   @Column()
   boardId: number;
-  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 10 }))
+
+  @Factory((faker) => faker.helpers.rangeToNumber({ min: 1, max: 30 }))
   @Column()
   userId: number;
 

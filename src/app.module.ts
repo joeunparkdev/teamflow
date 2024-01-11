@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { configModuleValidationSchema } from './configs/env-validation.config';
 import { typeOrmModuleOptions } from './configs/database.config';
@@ -16,6 +16,7 @@ import { CommentsModule } from './comments/comments.module';
 import { ColumnsModule } from './columns/columns.module';
 import { BoardUserService } from './board-user/board-user.service';
 import { BoardUserModule } from './board-user/board-user.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { BoardUserModule } from './board-user/board-user.module';
     BoardModule,
     CommentsModule,
     BoardUserModule,
+    FilesModule
   ],
 })
 export class AppModule {}

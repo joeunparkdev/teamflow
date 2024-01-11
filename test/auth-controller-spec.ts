@@ -1,6 +1,6 @@
 
-import { EmailService } from '../email/email.service';
-import { UserService } from '../user/user.service';
+import { EmailService } from '../src/email/email.service';
+import { UserService } from '../src/user/user.service';
 
 import { HttpStatus } from '@nestjs/common';
 import { AuthController } from '@/auth/auth.controller';
